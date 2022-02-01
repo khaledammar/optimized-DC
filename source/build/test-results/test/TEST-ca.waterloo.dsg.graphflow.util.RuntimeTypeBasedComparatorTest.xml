@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2021-11-27T19:59:08" hostname="Khaleds-MacBook-Pro.local" time="0.055">
+  <properties/>
+  <testcase name="testBooleanOperandsGreaterThan" classname="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" time="0.004"/>
+  <testcase name="testBooleanOperandsEquals" classname="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" time="0.0"/>
+  <testcase name="testIntegerOperandsGreaterThan" classname="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" time="0.001"/>
+  <testcase name="testIntegerOperandsNotEquals" classname="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" time="0.0"/>
+  <testcase name="testDoubleOperandsGreaterThan" classname="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" time="0.0"/>
+  <testcase name="testIntegerOperandsLessThan" classname="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" time="0.0"/>
+  <testcase name="testStringOperandsGreaterThan" classname="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" time="0.0"/>
+  <testcase name="testIntegerOperandsLessThanOrEqual" classname="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" time="0.0"/>
+  <testcase name="testInvalidStringAndInteger" classname="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" time="0.043"/>
+  <testcase name="testIntegerOperandsGreaterThanOrEqual" classname="ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparatorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

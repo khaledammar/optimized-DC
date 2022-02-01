@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <title>Graphflow PlanViewer</title>
+    <meta content="Graphflow PlanViewer" name="description">
+    <meta charset="utf-8">
+    <!-- Materialize UI -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script>
+    <!-- Underscore.js (javascript array/object/etc. help functions ) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"
+            type="text/javascript"></script>
+    <!-- Custom css file -->
+    <link href="css/plan_viewer.css" rel="stylesheet">
+    <!-- Google fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Crimson Text" rel="stylesheet">
+</head>
+
+<body>
+<div class="center">
+    <textarea id="query" style="margin-bottom: -10px; margin-top: 5px;"></textarea>
+    <input onclick="submitQuery()" type="submit" value="Submit Query"></input>
+</div>
+
+<div class="legend" id="legend">
+    <div>
+        <div class="graph-version-box current-graph legend-item">C</div>
+        <p class="legend-words">: Current Graph</p>
+    </div>
+
+    <div>
+        <div class="graph-version-box delta-graph legend-item">&Delta;</div>
+        <p class="legend-words">: Delta Graph</p>
+    </div>
+
+    <div>
+        <div class="new-graph legend-item">N</div>
+        <p class="legend-words">: New Graph</p>
+    </div>
+
+    <div>
+        <div class="simple-legend-entry"><b>&sigma;</b>: Filter</div>
+    </div>
+
+    <div>
+        <div class="simple-legend-entry"><b>&Pi;</b>: Projection</div>
+    </div>
+
+    <div>
+        <div class="simple-legend-entry"><b>&Gamma;</b>: Aggregate</div>
+    </div>
+
+    <div>
+        <div class="simple-legend-entry">------>: Outgoing</div>
+    </div>
+
+    <div>
+        <div class="simple-legend-entry"><------: Incoming</div>
+    </div>
+</div>
+
+<div id="stageSet"></div>
+
+<!-- Constant definitions -->
+<script src="js/constants.js" type="text/javascript"></script>
+<!-- Utility functions -->
+<script src="js/util.js" type="text/javascript"></script>
+<script src="js/plan.js" type="text/javascript"></script>
+</body>
+</html>

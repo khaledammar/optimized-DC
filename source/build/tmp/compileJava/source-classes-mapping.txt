@@ -1,0 +1,444 @@
+ca/waterloo/dsg/graphflow/query/executors/csp/DistancesEfficient.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesEfficient
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesEfficient$Diff
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesEfficient$IterationDistancePair
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesEfficient$VertexIterationDistancePair
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesEfficient$VertexStats
+ca/waterloo/dsg/graphflow/query/plans/OneTimeMatchQueryPlan.java
+ ca.waterloo.dsg.graphflow.query.plans.OneTimeMatchQueryPlan
+ca/waterloo/dsg/graphflow/util/SortedIntArrayList.java
+ ca.waterloo.dsg.graphflow.util.SortedIntArrayList
+ca/waterloo/dsg/graphflow/server/ServerQueryStringOrBuilder.java
+ ca.waterloo.dsg.graphflow.server.ServerQueryStringOrBuilder
+ca/waterloo/dsg/graphflow/query/executors/csp/NewUnidirectionalUnweightedDifferentialBFS.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewUnidirectionalUnweightedDifferentialBFS
+ca/waterloo/dsg/graphflow/query/operator/udf/subgraph/SubgraphFactory.java
+ ca.waterloo.dsg.graphflow.query.operator.udf.subgraph.SubgraphFactory
+ca/waterloo/dsg/graphflow/query/plans/ContinuousBaselineShortestPathPlan.java
+ ca.waterloo.dsg.graphflow.query.plans.ContinuousBaselineShortestPathPlan
+ca/waterloo/dsg/graphflow/client/cli/GraphflowCliRunner.java
+ ca.waterloo.dsg.graphflow.client.cli.GraphflowCliRunner
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialQ7.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialQ7
+ca/waterloo/dsg/graphflow/query/executors/csp/OneQueryDiff.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.OneQueryDiff
+ca/waterloo/dsg/graphflow/query/QueryProcessor.java
+ ca.waterloo.dsg.graphflow.query.QueryProcessor
+ ca.waterloo.dsg.graphflow.query.QueryProcessor$1
+ca/waterloo/dsg/graphflow/server/GraphflowServerProto.java
+ ca.waterloo.dsg.graphflow.server.GraphflowServerProto
+ca/waterloo/dsg/graphflow/exceptions/MalformedReturnClauseException.java
+ ca.waterloo.dsg.graphflow.exceptions.MalformedReturnClauseException
+ca/waterloo/dsg/graphflow/util/Timer.java
+ ca.waterloo.dsg.graphflow.util.Timer
+ca/waterloo/dsg/graphflow/query/output/MatchQueryOutput.java
+ ca.waterloo.dsg.graphflow.query.output.MatchQueryOutput
+ca/waterloo/dsg/graphflow/query/executors/csp/MultiQueryDiffHashPerQueryPrimitive.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.MultiQueryDiffHashPerQueryPrimitive
+ca/waterloo/dsg/graphflow/util/DataType.java
+ ca.waterloo.dsg.graphflow.util.DataType
+ca/waterloo/dsg/graphflow/query/structuredquery/QueryAggregation.java
+ ca.waterloo.dsg.graphflow.query.structuredquery.QueryAggregation
+ ca.waterloo.dsg.graphflow.query.structuredquery.QueryAggregation$AggregationFunction
+ca/waterloo/dsg/graphflow/query/executors/GenericJoinExecutor.java
+ ca.waterloo.dsg.graphflow.query.executors.GenericJoinExecutor
+ca/waterloo/dsg/graphflow/exceptions/MalformedWhereClauseException.java
+ ca.waterloo.dsg.graphflow.exceptions.MalformedWhereClauseException
+ca/waterloo/dsg/graphflow/server/ServerQueryString.java
+ ca.waterloo.dsg.graphflow.server.ServerQueryString
+ ca.waterloo.dsg.graphflow.server.ServerQueryString$1
+ ca.waterloo.dsg.graphflow.server.ServerQueryString$Builder
+ ca.waterloo.dsg.graphflow.server.ServerQueryString$ReturnType
+ ca.waterloo.dsg.graphflow.server.ServerQueryString$ReturnType$1
+ca/waterloo/dsg/graphflow/query/executors/csp/LandmarkUnidirectionalUnweightedDifferentialBFS.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.LandmarkUnidirectionalUnweightedDifferentialBFS
+ ca.waterloo.dsg.graphflow.query.executors.csp.LandmarkUnidirectionalUnweightedDifferentialBFS$Landmark
+ca/waterloo/dsg/graphflow/client/httpserver/PlanViewerHttpServer.java
+ ca.waterloo.dsg.graphflow.client.httpserver.PlanViewerHttpServer
+ ca.waterloo.dsg.graphflow.client.httpserver.PlanViewerHttpServer$PlanViewerHttpInputHandler
+ ca.waterloo.dsg.graphflow.client.httpserver.PlanViewerHttpServer$PlanViewerHttpOutputHandler
+ca/waterloo/dsg/graphflow/query/structuredquery/QueryRelation.java
+ ca.waterloo.dsg.graphflow.query.structuredquery.QueryRelation
+ca/waterloo/dsg/graphflow/query/structuredquery/QueryGraph.java
+ ca.waterloo.dsg.graphflow.query.structuredquery.QueryGraph
+ca/waterloo/dsg/graphflow/server/GraphflowServerQueryGrpc.java
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$1
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$2
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$3
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$GraphflowServerQueryBaseDescriptorSupplier
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$GraphflowServerQueryBlockingStub
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$GraphflowServerQueryFileDescriptorSupplier
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$GraphflowServerQueryFutureStub
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$GraphflowServerQueryImplBase
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$GraphflowServerQueryMethodDescriptorSupplier
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$GraphflowServerQueryStub
+ ca.waterloo.dsg.graphflow.server.GraphflowServerQueryGrpc$MethodHandlers
+ca/waterloo/dsg/graphflow/query/executors/csp/DijkstraBaseline.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.DijkstraBaseline
+ ca.waterloo.dsg.graphflow.query.executors.csp.DijkstraBaseline$NodeDistanceComparator
+ca/waterloo/dsg/graphflow/graph/serde/SerDeUtils.java
+ ca.waterloo.dsg.graphflow.graph.serde.SerDeUtils
+ca/waterloo/dsg/graphflow/query/operator/aggregator/Sum.java
+ ca.waterloo.dsg.graphflow.query.operator.aggregator.Sum
+ca/waterloo/dsg/graphflow/query/executors/csp/Distances.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.Distances
+ ca.waterloo.dsg.graphflow.query.executors.csp.Distances$1
+ ca.waterloo.dsg.graphflow.query.executors.csp.Distances$Diff
+ ca.waterloo.dsg.graphflow.query.executors.csp.Distances$IterationDistancePair
+ ca.waterloo.dsg.graphflow.query.executors.csp.Distances$VertexIterationDistancePair
+ ca.waterloo.dsg.graphflow.query.executors.csp.Distances$VertexStats
+ca/waterloo/dsg/graphflow/exceptions/MalformedMatchQueryException.java
+ ca.waterloo.dsg.graphflow.exceptions.MalformedMatchQueryException
+ca/waterloo/dsg/graphflow/query/structuredquery/AbstractStructuredQuery.java
+ ca.waterloo.dsg.graphflow.query.structuredquery.AbstractStructuredQuery
+ca/waterloo/dsg/graphflow/query/operator/AbstractDBOperator.java
+ ca.waterloo.dsg.graphflow.query.operator.AbstractDBOperator
+ca/waterloo/dsg/graphflow/graph/TypeAndPropertyKeyStore.java
+ ca.waterloo.dsg.graphflow.graph.TypeAndPropertyKeyStore
+ca/waterloo/dsg/graphflow/exceptions/IncorrectVertexTypeException.java
+ ca.waterloo.dsg.graphflow.exceptions.IncorrectVertexTypeException
+ca/waterloo/dsg/graphflow/graph/serde/GraphflowSerializable.java
+ ca.waterloo.dsg.graphflow.graph.serde.GraphflowSerializable
+ca/waterloo/dsg/graphflow/util/IOUtils.java
+ ca.waterloo.dsg.graphflow.util.IOUtils
+ca/waterloo/dsg/graphflow/util/StringToIntKeyMap.java
+ ca.waterloo.dsg.graphflow.util.StringToIntKeyMap
+ca/waterloo/dsg/graphflow/server/GraphflowServer.java
+ ca.waterloo.dsg.graphflow.server.GraphflowServer
+ ca.waterloo.dsg.graphflow.server.GraphflowServer$1
+ ca.waterloo.dsg.graphflow.server.GraphflowServer$GraphflowQueryImpl
+ca/waterloo/dsg/graphflow/server/GraphflowServerRunner.java
+ ca.waterloo.dsg.graphflow.server.GraphflowServerRunner
+ca/waterloo/dsg/graphflow/query/executors/csp/OptimizedDijkstraBaseline_1.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.OptimizedDijkstraBaseline_1
+ ca.waterloo.dsg.graphflow.query.executors.csp.OptimizedDijkstraBaseline_1$NodeDegreeComparator
+ ca.waterloo.dsg.graphflow.query.executors.csp.OptimizedDijkstraBaseline_1$NodeDistanceComparator
+ca/waterloo/dsg/graphflow/grammar/GraphflowLexer.java
+ ca.waterloo.dsg.graphflow.grammar.GraphflowLexer
+ca/waterloo/dsg/graphflow/query/executors/csp/OptimizedBidirUnweightedDifferentialBFS.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.OptimizedBidirUnweightedDifferentialBFS
+ ca.waterloo.dsg.graphflow.query.executors.csp.OptimizedBidirUnweightedDifferentialBFS$DirectionIterationPair
+ca/waterloo/dsg/graphflow/query/executors/csp/MultiQueryDiffBloomPerIteration.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.MultiQueryDiffBloomPerIteration
+ca/waterloo/dsg/graphflow/GenerateWeightedGraphs.java
+ ca.waterloo.dsg.graphflow.GenerateWeightedGraphs
+ca/waterloo/dsg/graphflow/query/operator/aggregator/AbstractAggregator.java
+ ca.waterloo.dsg.graphflow.query.operator.aggregator.AbstractAggregator
+ca/waterloo/dsg/graphflow/query/parser/StructuredQueryParser.java
+ ca.waterloo.dsg.graphflow.query.parser.StructuredQueryParser
+ca/waterloo/dsg/graphflow/query/parser/ErrorListener.java
+ ca.waterloo.dsg.graphflow.query.parser.ErrorListener
+ca/waterloo/dsg/graphflow/grammar/GraphflowBaseVisitor.java
+ ca.waterloo.dsg.graphflow.grammar.GraphflowBaseVisitor
+ca/waterloo/dsg/graphflow/graph/serde/ParallelArraySerDeUtils.java
+ ca.waterloo.dsg.graphflow.graph.serde.ParallelArraySerDeUtils
+mvm/provenance/TestAC.java
+ mvm.provenance.TestAC
+ca/waterloo/dsg/graphflow/query/executors/csp/ShortestPath.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.ShortestPath
+ca/waterloo/dsg/graphflow/query/plans/ContinuousDiffBFSShortestPathPlan.java
+ ca.waterloo.dsg.graphflow.query.plans.ContinuousDiffBFSShortestPathPlan
+ ca.waterloo.dsg.graphflow.query.plans.ContinuousDiffBFSShortestPathPlan$1
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialKHOP.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialKHOP
+ca/waterloo/dsg/graphflow/query/executors/ShortestPathExecutor.java
+ ca.waterloo.dsg.graphflow.query.executors.ShortestPathExecutor
+ca/waterloo/dsg/graphflow/exceptions/NoSuchVertexIDException.java
+ ca.waterloo.dsg.graphflow.exceptions.NoSuchVertexIDException
+ca/waterloo/dsg/graphflow/query/operator/aggregator/Average.java
+ ca.waterloo.dsg.graphflow.query.operator.aggregator.Average
+ca/waterloo/dsg/graphflow/graph/serde/MainFileSerDeHelper.java
+ ca.waterloo.dsg.graphflow.graph.serde.MainFileSerDeHelper
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialQ11.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialQ11
+ca/waterloo/dsg/graphflow/query/planner/CreateQueryPlanner.java
+ ca.waterloo.dsg.graphflow.query.planner.CreateQueryPlanner
+com/googlecode/javaewah/datastructure/BitSet.java
+ com.googlecode.javaewah.datastructure.BitSet
+ca/waterloo/dsg/graphflow/query/operator/Projection.java
+ ca.waterloo.dsg.graphflow.query.operator.Projection
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialQ2.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialQ2
+ca/waterloo/dsg/graphflow/query/executors/csp/ShortestPathsResult.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.ShortestPathsResult
+mvm/provenance/InsDelUpdateStatistics.java
+ mvm.provenance.InsDelUpdateStatistics
+ca/waterloo/dsg/graphflow/query/planner/AbstractQueryPlanner.java
+ ca.waterloo.dsg.graphflow.query.planner.AbstractQueryPlanner
+ca/waterloo/dsg/graphflow/query/operator/udf/subgraph/Vertex.java
+ ca.waterloo.dsg.graphflow.query.operator.udf.subgraph.Vertex
+ca/waterloo/dsg/graphflow/query/structuredquery/StructuredQuery.java
+ ca.waterloo.dsg.graphflow.query.structuredquery.StructuredQuery
+ ca.waterloo.dsg.graphflow.query.structuredquery.StructuredQuery$QueryOperation
+mvm/provenance/Hasher.java
+ mvm.provenance.Hasher
+ca/waterloo/dsg/graphflow/query/executors/csp/MultiQueryDiffBloom.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.MultiQueryDiffBloom
+ca/waterloo/dsg/graphflow/grammar/GraphflowVisitor.java
+ ca.waterloo.dsg.graphflow.grammar.GraphflowVisitor
+ca/waterloo/dsg/graphflow/query/parser/GraphflowVisitor.java
+ ca.waterloo.dsg.graphflow.query.parser.GraphflowVisitor
+ca/waterloo/dsg/graphflow/query/executors/csp/PermanentDiff.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.PermanentDiff
+ca/waterloo/dsg/graphflow/graph/GraphDBState.java
+ ca.waterloo.dsg.graphflow.graph.GraphDBState
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialQ1.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialQ1
+ca/waterloo/dsg/graphflow/grammar/GraphflowParser.java
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$AggregationFunctionContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$AggregationPatternContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$BooleanLiteralContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$ContinuousMatchQueryContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$ContinuousShortestPathQueryContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$CountStarPatternContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$CreateEdgePatternContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$CreateQueryContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$CreateVertexPatternContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$DeletePatternContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$DeleteQueryContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$DigitsEdgeWithOptionalTypeContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$DigitsEdgeWithTypeAndPropertiesContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$DigitsVertexContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$DigitsVertexWithTypeAndPropertiesContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$DoubleLiteralContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$DurabilityQueryContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$EdgeTypeAndOptionalPropertiesContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$EdgeTypeContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$EdgeVariableContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$ExplainContinuousMatchQueryContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$ExplainMatchQueryContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$FileSinkContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$FunctionNameContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$GraphflowContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$IntegerLiteralContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$KeyContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$KeywordContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$LiteralContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$MatchPatternContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$MatchQueryContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$NumericLiteralContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$OperandContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$OperatorContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$PathPatternContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$PredicateContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$PredicatesContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$PropertiesContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$PropertyContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$QueryContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$ReturnClauseContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$ShortestPathQueryContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$StatementContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$StringLiteralContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$TypeContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$UdfCallContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$VariableContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$VariableEdgeContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$VariableVertexContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$VariableWithPropertyContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$WeightContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$WeightsClauseContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$WhereClauseContext
+ ca.waterloo.dsg.graphflow.grammar.GraphflowParser$WhitespaceContext
+ca/waterloo/dsg/graphflow/query/executors/csp/DistancesWithDropBloom.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesWithDropBloom
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesWithDropBloom$DropType
+ca/waterloo/dsg/graphflow/grammar/GraphflowListener.java
+ ca.waterloo.dsg.graphflow.grammar.GraphflowListener
+mvm/provenance/QuickBenchmark.java
+ mvm.provenance.QuickBenchmark
+mvm/provenance/BloomIndex.java
+ mvm.provenance.BloomIndex
+com/skjegstad/utils/TestAC.java
+ com.skjegstad.utils.TestAC
+mvm/provenance/NaiveBloomFilterIndex.java
+ mvm.provenance.NaiveBloomFilterIndex
+ca/waterloo/dsg/graphflow/grammar/GraphflowBaseListener.java
+ ca.waterloo.dsg.graphflow.grammar.GraphflowBaseListener
+ca/waterloo/dsg/graphflow/query/plans/DeleteQueryPlan.java
+ ca.waterloo.dsg.graphflow.query.plans.DeleteQueryPlan
+ca/waterloo/dsg/graphflow/util/IntArrayList.java
+ ca.waterloo.dsg.graphflow.util.IntArrayList
+ca/waterloo/dsg/graphflow/server/ServerQueryResult.java
+ ca.waterloo.dsg.graphflow.server.ServerQueryResult
+ ca.waterloo.dsg.graphflow.server.ServerQueryResult$1
+ ca.waterloo.dsg.graphflow.server.ServerQueryResult$Builder
+ca/waterloo/dsg/graphflow/query/executors/GenericJoinIntersectionRule.java
+ ca.waterloo.dsg.graphflow.query.executors.GenericJoinIntersectionRule
+ca/waterloo/dsg/graphflow/query/plans/CreateQueryPlan.java
+ ca.waterloo.dsg.graphflow.query.plans.CreateQueryPlan
+ca/waterloo/dsg/graphflow/util/JsonUtils.java
+ ca.waterloo.dsg.graphflow.util.JsonUtils
+mvm/provenance/IDBloomFilterPair.java
+ mvm.provenance.IDBloomFilterPair
+ca/waterloo/dsg/graphflow/query/plans/ContinuousShortestPathPlan.java
+ ca.waterloo.dsg.graphflow.query.plans.ContinuousShortestPathPlan
+ca/waterloo/dsg/graphflow/query/structuredquery/QueryPropertyPredicate.java
+ ca.waterloo.dsg.graphflow.query.structuredquery.QueryPropertyPredicate
+ ca.waterloo.dsg.graphflow.query.structuredquery.QueryPropertyPredicate$1
+ ca.waterloo.dsg.graphflow.query.structuredquery.QueryPropertyPredicate$PredicateType
+ca/waterloo/dsg/graphflow/query/operator/aggregator/CountStar.java
+ ca.waterloo.dsg.graphflow.query.operator.aggregator.CountStar
+ca/waterloo/dsg/graphflow/util/StringToShortKeyStore.java
+ ca.waterloo.dsg.graphflow.util.StringToShortKeyStore
+ca/waterloo/dsg/graphflow/query/executors/csp/DistancesWithDropHash.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesWithDropHash
+ca/waterloo/dsg/graphflow/query/validators/MatchQueryValidator.java
+ ca.waterloo.dsg.graphflow.query.validators.MatchQueryValidator
+ca/waterloo/dsg/graphflow/graph/serde/GraphParallelSerDeUtils.java
+ ca.waterloo.dsg.graphflow.graph.serde.GraphParallelSerDeUtils
+ca/waterloo/dsg/graphflow/util/RuntimeTypeBasedComparator.java
+ ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparator
+ ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparator$1
+ ca.waterloo.dsg.graphflow.util.RuntimeTypeBasedComparator$ComparisonOperator
+ca/waterloo/dsg/graphflow/util/UsedOnlyByTests.java
+ ca.waterloo.dsg.graphflow.util.UsedOnlyByTests
+ca/waterloo/dsg/graphflow/query/executors/csp/NewUnidirectionalWeightedDifferentialBFSDropRandomVertexDiff.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewUnidirectionalWeightedDifferentialBFSDropRandomVertexDiff
+ca/waterloo/dsg/graphflow/query/operator/FileOutputSink.java
+ ca.waterloo.dsg.graphflow.query.operator.FileOutputSink
+mvm/provenance/BloomFilterIndex.java
+ mvm.provenance.BloomFilterIndex
+ mvm.provenance.BloomFilterIndex$BFINode
+ca/waterloo/dsg/graphflow/util/LongArrayList.java
+ ca.waterloo.dsg.graphflow.util.LongArrayList
+ca/waterloo/dsg/graphflow/exceptions/NoSuchPropertyKeyException.java
+ ca.waterloo.dsg.graphflow.exceptions.NoSuchPropertyKeyException
+ca/waterloo/dsg/graphflow/query/executors/csp/NewWeightedDifferentialBFSWithPositiveEdges.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewWeightedDifferentialBFSWithPositiveEdges
+ca/waterloo/dsg/graphflow/query/operator/udf/subgraph/VertexOrEdge.java
+ ca.waterloo.dsg.graphflow.query.operator.udf.subgraph.VertexOrEdge
+ca/waterloo/dsg/graphflow/query/executors/csp/ContinuousShortestPathsExecutor.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.ContinuousShortestPathsExecutor
+ca/waterloo/dsg/graphflow/client/cli/GraphflowCli.java
+ ca.waterloo.dsg.graphflow.client.cli.GraphflowCli
+ca/waterloo/dsg/graphflow/util/IntQueue.java
+ ca.waterloo.dsg.graphflow.util.IntQueue
+ca/waterloo/dsg/graphflow/exceptions/SerializationDeserializationException.java
+ ca.waterloo.dsg.graphflow.exceptions.SerializationDeserializationException
+ca/waterloo/dsg/graphflow/query/executors/csp/MultiQueryDiff.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.MultiQueryDiff
+ca/waterloo/dsg/graphflow/query/executors/WeightedDiffBFS.java
+ ca.waterloo.dsg.graphflow.query.executors.WeightedDiffBFS
+ca/waterloo/dsg/graphflow/query/planner/DeleteQueryPlanner.java
+ ca.waterloo.dsg.graphflow.query.planner.DeleteQueryPlanner
+ca/waterloo/dsg/graphflow/query/output/JsonOutputable.java
+ ca.waterloo.dsg.graphflow.query.output.JsonOutputable
+ca/waterloo/dsg/graphflow/query/executors/csp/MultiQueryDiffBloomPerQuery.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.MultiQueryDiffBloomPerQuery
+ca/waterloo/dsg/graphflow/util/Report.java
+ ca.waterloo.dsg.graphflow.util.Report
+ ca.waterloo.dsg.graphflow.util.Report$Level
+ca/waterloo/dsg/graphflow/query/plans/ShortestPathPlan.java
+ ca.waterloo.dsg.graphflow.query.plans.ShortestPathPlan
+com/skjegstad/utils/BloomFilter.java
+ com.skjegstad.utils.BloomFilter
+ca/waterloo/dsg/graphflow/client/GraphflowClient.java
+ ca.waterloo.dsg.graphflow.client.GraphflowClient
+ca/waterloo/dsg/graphflow/query/executors/csp/WeightedBaselineBFS.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.WeightedBaselineBFS
+ca/waterloo/dsg/graphflow/query/operator/TimedInMemoryOutputSink.java
+ ca.waterloo.dsg.graphflow.query.operator.TimedInMemoryOutputSink
+ ca.waterloo.dsg.graphflow.query.operator.TimedInMemoryOutputSink$BatchedOutput
+ ca.waterloo.dsg.graphflow.query.operator.TimedInMemoryOutputSink$MutableInt
+ca/waterloo/dsg/graphflow/query/operator/InMemoryOutputSink.java
+ ca.waterloo.dsg.graphflow.query.operator.InMemoryOutputSink
+ca/waterloo/dsg/graphflow/query/operator/udf/subgraph/Edge.java
+ ca.waterloo.dsg.graphflow.query.operator.udf.subgraph.Edge
+ca/waterloo/dsg/graphflow/query/plans/QueryPlan.java
+ ca.waterloo.dsg.graphflow.query.plans.QueryPlan
+ca/waterloo/dsg/graphflow/query/executors/csp/VerticesToFix.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.VerticesToFix
+ca/waterloo/dsg/graphflow/query/operator/udf/subgraph/Subgraph.java
+ ca.waterloo.dsg.graphflow.query.operator.udf.subgraph.Subgraph
+ ca.waterloo.dsg.graphflow.query.operator.udf.subgraph.Subgraph$SubgraphType
+ca/waterloo/dsg/graphflow/query/structuredquery/QueryVariable.java
+ ca.waterloo.dsg.graphflow.query.structuredquery.QueryVariable
+ca/waterloo/dsg/graphflow/query/operator/aggregator/Min.java
+ ca.waterloo.dsg.graphflow.query.operator.aggregator.Min
+ca/waterloo/dsg/graphflow/query/executors/csp/MultiQueryDiffHash.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.MultiQueryDiffHash
+ca/waterloo/dsg/graphflow/graph/SortedAdjacencyList.java
+ ca.waterloo.dsg.graphflow.graph.SortedAdjacencyList
+mvm/provenance/FlatBloomFilterIndex.java
+ mvm.provenance.FlatBloomFilterIndex
+ca/waterloo/dsg/graphflow/util/VisibleForTesting.java
+ ca.waterloo.dsg.graphflow.util.VisibleForTesting
+ca/waterloo/dsg/graphflow/query/executors/csp/DifferentialBFS.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.DifferentialBFS
+ca/waterloo/dsg/graphflow/query/executors/csp/NewUnidirectionalDifferentialBFS.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewUnidirectionalDifferentialBFS
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewUnidirectionalDifferentialBFS$DropIndex
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewUnidirectionalDifferentialBFS$Queries
+ca/waterloo/dsg/graphflow/query/executors/csp/NewUnidirectionalWeightedDifferentialBFS.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewUnidirectionalWeightedDifferentialBFS
+ca/waterloo/dsg/graphflow/query/executors/MatchQueryResultType.java
+ ca.waterloo.dsg.graphflow.query.executors.MatchQueryResultType
+ca/waterloo/dsg/graphflow/util/ShortArrayList.java
+ ca.waterloo.dsg.graphflow.util.ShortArrayList
+ca/waterloo/dsg/graphflow/exceptions/IncorrectDataTypeException.java
+ ca.waterloo.dsg.graphflow.exceptions.IncorrectDataTypeException
+ca/waterloo/dsg/graphflow/graph/PermanentAndMergedEdgesIterator.java
+ ca.waterloo.dsg.graphflow.graph.PermanentAndMergedEdgesIterator
+ca/waterloo/dsg/graphflow/query/operator/aggregator/Max.java
+ ca.waterloo.dsg.graphflow.query.operator.aggregator.Max
+ca/waterloo/dsg/graphflow/ExecutorType.java
+ ca.waterloo.dsg.graphflow.ExecutorType
+ ca.waterloo.dsg.graphflow.ExecutorType$1
+ca/waterloo/dsg/graphflow/util/ArrayUtils.java
+ ca.waterloo.dsg.graphflow.util.ArrayUtils
+ca/waterloo/dsg/graphflow/query/planner/ShortestPathPlanner.java
+ ca.waterloo.dsg.graphflow.query.planner.ShortestPathPlanner
+ca/waterloo/dsg/graphflow/exceptions/NoSuchTypeException.java
+ ca.waterloo.dsg.graphflow.exceptions.NoSuchTypeException
+mvm/provenance/SearchStatistics.java
+ mvm.provenance.SearchStatistics
+ca/waterloo/dsg/graphflow/query/executors/csp/ContinuousBaselineShortestPathExecutor.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.ContinuousBaselineShortestPathExecutor
+ca/waterloo/dsg/graphflow/query/executors/csp/DiffCache.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.DiffCache
+ca/waterloo/dsg/graphflow/server/ServerQueryResultOrBuilder.java
+ ca.waterloo.dsg.graphflow.server.ServerQueryResultOrBuilder
+ca/waterloo/dsg/graphflow/query/planner/ContinuousShortestPathPlanner.java
+ ca.waterloo.dsg.graphflow.query.planner.ContinuousShortestPathPlanner
+ca/waterloo/dsg/graphflow/graph/DiffEdgesIterator.java
+ ca.waterloo.dsg.graphflow.graph.DiffEdgesIterator
+ca/waterloo/dsg/graphflow/query/operator/aggregator/AbstractLongDoubleAggregator.java
+ ca.waterloo.dsg.graphflow.query.operator.aggregator.AbstractLongDoubleAggregator
+ca/waterloo/dsg/graphflow/query/executors/csp/NewUnidirectionalDifferentialBFSDCJOD.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewUnidirectionalDifferentialBFSDCJOD
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewUnidirectionalDifferentialBFSDCJOD$DropIndex
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialQ2DC.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialQ2DC
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialQ1DC.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialQ1DC
+ca/waterloo/dsg/graphflow/query/executors/csp/DistancesDC.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesDC
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesDC$Diff
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesDC$Diff2
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesDC$VertexDiff
+ ca.waterloo.dsg.graphflow.query.executors.csp.DistancesDC$VertexStats
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialSPSPDCJOD.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialSPSPDCJOD
+ca/waterloo/dsg/graphflow/query/executors/csp/NewUnidirectionalDifferentialBFSDC.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewUnidirectionalDifferentialBFSDC
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewUnidirectionalDifferentialBFSDC$DropIndex
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialSPSPDC.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialSPSPDC
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialQ11DC.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialQ11DC
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialQ7DC.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialQ7DC
+ca/waterloo/dsg/graphflow/query/executors/csp/NewDifferentialKHOPDC.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.NewDifferentialKHOPDC
+ca/waterloo/dsg/graphflow/graph/Graph.java
+ ca.waterloo.dsg.graphflow.graph.Graph
+ ca.waterloo.dsg.graphflow.graph.Graph$Direction
+ ca.waterloo.dsg.graphflow.graph.Graph$GraphVersion
+ca/waterloo/dsg/graphflow/Experiment.java
+ ca.waterloo.dsg.graphflow.Experiment
+ ca.waterloo.dsg.graphflow.Experiment$BatchType
+ ca.waterloo.dsg.graphflow.Experiment$EdgeBatch
+ca/waterloo/dsg/graphflow/query/executors/csp/MultiQueryDiffDC.java
+ ca.waterloo.dsg.graphflow.query.executors.csp.MultiQueryDiffDC
