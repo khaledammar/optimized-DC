@@ -73,7 +73,8 @@ public class ContinuousShortestPathPlanner extends AbstractQueryPlanner {
      * @return
      */
     public QueryPlan plan(int queryId, ExecutorType executorType, boolean backtrack, float dropProbability,
-                          DistancesWithDropBloom.DropType dropType, String bloomType, int minimumDegree, int maxDegree) {
+                          DistancesWithDropBloom.DropType dropType, String bloomType, int minimumDegree,
+                          int maxDegree, int landmarkNumber) {
         QueryRelation shortestPathEdge = structuredQuery.getQueryRelations().get(0);
 
         /**
@@ -87,12 +88,12 @@ public class ContinuousShortestPathPlanner extends AbstractQueryPlanner {
             return new ContinuousBaselineShortestPathPlan(queryId,
                     Integer.parseInt(shortestPathEdge.getFromQueryVariable().getVariableName()),
                     Integer.parseInt(shortestPathEdge.getToQueryVariable().getVariableName()), outputSink, executorType,
-                    backtrack);
+                    backtrack, landmarkNumber);
         } else {
             return new ContinuousDiffBFSShortestPathPlan(queryId,
                     Integer.parseInt(shortestPathEdge.getFromQueryVariable().getVariableName()),
                     Integer.parseInt(shortestPathEdge.getToQueryVariable().getVariableName()), outputSink, executorType,
-                    backtrack, dropProbability, dropType, bloomType, minimumDegree, maxDegree);
+                    backtrack, dropProbability, dropType, bloomType, minimumDegree, maxDegree, landmarkNumber);
         }
     }
 }

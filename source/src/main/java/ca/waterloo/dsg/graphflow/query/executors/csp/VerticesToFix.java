@@ -62,6 +62,13 @@ public class VerticesToFix {
         isEmpty = true;
     }
 
+    /**
+     * Clear vertices from a specific iteration
+     * @param iteration
+     */
+    public void clear(int iteration) {
+        iterVPairsList.get(iteration).clear();
+    }
 
     /**
      * Adds a vertex with the given ID to the list of vertices to fix in the given iteration number.
@@ -71,7 +78,7 @@ public class VerticesToFix {
      */
     public void addVToFix(int vertexId, int iterationNo) {
         if (DistancesWithDropBloom.debug(vertexId)) {
-            Report.INSTANCE.error("----FAKE addVToFix v=" + vertexId + " iter= " + iterationNo);
+            Report.INSTANCE.error("----FAKE2 addVToFix v=" + vertexId + " iter= " + iterationNo);
         }
 
         if (iterationNo >= iterVPairsList.size()) {

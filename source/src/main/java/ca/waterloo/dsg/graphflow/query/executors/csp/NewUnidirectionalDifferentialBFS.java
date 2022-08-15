@@ -39,7 +39,11 @@ public abstract class NewUnidirectionalDifferentialBFS implements DifferentialBF
         Q11,
         SPSP,
         KHOP,
-        NOT_SUPPORTED
+        NOT_SUPPORTED,
+        PR,
+        WCC,
+        Landmark_SPSP,
+        Landmark_W_SPSP
     }
 
     public static VerticesToFix verticesToFix;
@@ -91,11 +95,15 @@ public abstract class NewUnidirectionalDifferentialBFS implements DifferentialBF
     }
 
     // dummy function required by interface and used by Landmark
-    public void preProcessing() {
+    public void preProcessing(int batchNumber) {
     }
 
     public void printDiffs() {
         distances.print();
+    }
+
+    public static boolean canAddVtoFrontier(int vertexId){
+        return true;
     }
 
     public int getQueryId() {
@@ -125,6 +133,9 @@ public abstract class NewUnidirectionalDifferentialBFS implements DifferentialBF
         distances.printStats();
     }
 
+    public int getMaxIteration(){
+        return distances.latestIteration;
+    }
     public int sizeOfDistances() {
         return distances.size();
     }
@@ -144,9 +155,15 @@ public abstract class NewUnidirectionalDifferentialBFS implements DifferentialBF
         return distances.recalculateNumber;
     }
 
+
+    public int getSetVertexChangeNumbers() {
+        return distances.setVertexDistanceCounter;
+    }
+
     public void initRecalculateNumbers() {
         //Report.INSTANCE.debug("---1----- initRecalculateNumbers : " + distances.recalculateNumber);
         distances.recalculateNumber = 0;
+        distances.setVertexDistanceCounter = 0;
         distances.recalculateState = new HashMap<>(1);
     }
 
@@ -194,7 +211,6 @@ public abstract class NewUnidirectionalDifferentialBFS implements DifferentialBF
                         " - Distance " + sizeOfDistances() + " - Delta " + sizeOfDeltaDistances() +
                         " - Recalculate = " + getRecalculateNumbers());
             }
-
              */
         }
         /*
@@ -359,6 +375,7 @@ When we do not add them to distances, they cannot use their own distance to reac
         //System.out.println("Delta Diff = "+distances.deltaDiffs.size());
         // Prepare a list of vertices that may impact the shortest path
         // based on added/deleted edges
+        verticesToFix.clear();
         addVerticesToFixFromDiffEdges();
 
         // if there is no changes in SP, return!
@@ -376,8 +393,8 @@ When we do not add them to distances, they cannot use their own distance to reac
         // 3- last iteration is reached
         short t = 1;
 
-        //Report.INSTANCE.debug("== revisiting all iterations");
-        while (t <= distances.latestIteration) {
+        Report.INSTANCE.debug("== revisiting all iterations "+distances.latestIteration + " -- "+verticesToFix.iterVPairsList.size());
+        while (t <= distances.latestIteration || t<= verticesToFix.iterVPairsList.size()) {
 
             //Report.INSTANCE.debug("== iteration #" + t);
 
@@ -427,6 +444,7 @@ When we do not add them to distances, they cannot use their own distance to reac
 
         //System.out.println("size-end = "+ distances.deltaDiffs.size());
         distances.mergeDeltaDiffs();
+        distances.print();
         //System.out.println("size-end2 = "+ distances.deltaDiffs.size());
     }
 
@@ -607,7 +625,7 @@ When we do not add them to distances, they cannot use their own distance to reac
             // This is important because if the vertex became unreachable or worse, we need to revisit it again
             // in iterations after its in-neighbours were updated
 
-            if (newValue < distanceAtPreviousIter) {
+            if (shouldSetNewValue(vertexToFix,newValue, distanceAtPreviousIter)) {
                 // set the new distance
                 distances.setVertexDistance(vertexToFix, currentFixedIter, newValue);
             }
@@ -625,6 +643,12 @@ When we do not add them to distances, they cannot use their own distance to reac
         }
     }
 
+    boolean shouldSetNewValue(int vertexId, long newVal, long oldVal){
+        if (newVal < oldVal)
+            return true;
+        else
+            return false;
+    }
     public void fixOutNeighbours(int vertexToFix, short currentFixedIter, long vertexOldDistance,
                                  long vertexNewDistance) {
         SortedAdjacencyList outComingAdjList = getOutNeighbours(vertexToFix, true, direction, (short) (currentFixedIter+1));

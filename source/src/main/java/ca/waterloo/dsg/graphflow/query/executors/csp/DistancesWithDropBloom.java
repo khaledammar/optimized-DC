@@ -97,6 +97,9 @@ public class DistancesWithDropBloom extends Distances {
         this.dropType = dropType;
         this.minimumDegree = minimumDegree;
         this.maximumDegree = maximumDegree;
+
+        if(queryType== NewUnidirectionalDifferentialBFS.Queries.WCC)
+            this.maximumDegree = maximumDegree * 2;
     }
 /*
     // This version is used for Selective Drop
@@ -126,15 +129,15 @@ public class DistancesWithDropBloom extends Distances {
 
         //int[] debug_list = {3548303, 3916142, 3992819, 4172249, 4318075, 4378549, 4381441, 4906966, 5290991, 4172741, 4240094};
         //int[] debug_list = {3916212, 4670661, 5138142, 5490117, 5627416, 5627416};
-/*
-        int[] debug_list={}; // 53547
+
+        int[] debug_list={}; // 4984260
 
         for (int v:debug_list){
             if (vertexId == v)
                 return true;
         }
 
- */
+
         return false;
     }
 
@@ -220,6 +223,9 @@ public class DistancesWithDropBloom extends Distances {
             return !doNotskip;
         } else { // Selective
             int vertexDegree = Graph.getInstance().getVertexDegree(vertexId, direction);
+            if (queryType == NewUnidirectionalDifferentialBFS.Queries.WCC ||
+                    queryType == NewUnidirectionalDifferentialBFS.Queries.PR )
+                vertexDegree += Graph.getInstance().getVertexBWDDegree(vertexId);
             if (vertexDegree >= maximumDegree || (vertexDegree > minimumDegree && doNotskip)) {
                 return false;
             } else {
@@ -289,7 +295,7 @@ public class DistancesWithDropBloom extends Distances {
         }
 
         if (iterationNo == latestIteration && Long.MAX_VALUE != distance) {
-            frontier.add(vertexId);
+            addVtoFrontier(vertexId);
             nextFrontierSize += Graph.getInstance().getVertexDegree(vertexId, direction);
 
             if (debug(vertexId)) {
@@ -436,7 +442,7 @@ public class DistancesWithDropBloom extends Distances {
         // get all vertices that have diffs
         for (Integer vertex : getVerticesWithDiff()) {
             if (isDiffExist(queryId, vertex, iterationNo) || isDiffUseful(vertex, iterationNo)) {
-                frontier.add(vertex);
+                addVtoFrontier(vertex);
                 nextFrontierSize += Graph.getInstance().getVertexDegree(vertex, direction);
             }
         }
@@ -566,12 +572,21 @@ Then, it will not report it because it think that it already exist but it was dr
                             newBatches);
         }
 
+        long defaultValue = Long.MAX_VALUE;
+        if (queryType == NewUnidirectionalDifferentialBFS.Queries.WCC)
+            defaultValue = vertexId;
+
+        if (queryType == NewUnidirectionalDifferentialBFS.Queries.PR)
+            defaultValue = SIXM;
+
+
+
         if (vertexId == source) {
             return 0;
         }
 
         if (iterationNo <= 0) {
-            return Long.MAX_VALUE;
+            return defaultValue;
         }
 
         short[] distances;
@@ -587,7 +602,7 @@ Then, it will not report it because it think that it already exist but it was dr
             }
         }
 
-        long latestDistance = Long.MAX_VALUE;
+        long latestDistance = defaultValue;
         int distances_index = ((distances[0]) * 5) - 4;
 
         while (distances_index >= 1) {
@@ -703,16 +718,5 @@ Then, it will not report it because it think that it already exist but it was dr
         }
 
         return getNewDistance(vertexId, iterationNo, newBatches, -1);
-    }
-
-    public void print() {
-        /*
-        if (Report.INSTANCE.appReportingLevel == Report.Level.DEBUG) {
-            super.print();
-            Report.INSTANCE.debug("Dropped Vertices:");
-            Report.INSTANCE.debug(droppedDiffs.visitedVertices_fast.toString());
-        }
-
-         */
     }
 }

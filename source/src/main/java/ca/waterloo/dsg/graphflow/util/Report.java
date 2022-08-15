@@ -26,6 +26,7 @@ public class Report {
     public void debug(String s, Object... args) {
         if (appReportingLevel == Level.DEBUG) {
             System.out.printf(s + "\n", args);
+            System.out.flush();
         }
     }
 

@@ -28,6 +28,7 @@ public interface DifferentialBFS {
 
     @VisibleForTesting
     int sizeOfDistances();
+    int getMaxIteration();
     int getNumberOfVertices();
 
     public int getQueryId();
@@ -35,6 +36,7 @@ public interface DifferentialBFS {
     public void copyDiffs(DifferentialBFS initDiff);
 
     int getRecalculateNumbers();
+    int getSetVertexChangeNumbers();
     Map<Integer,Integer> getRecalculateStats();
 
     void initRecalculateNumbers();
@@ -50,7 +52,7 @@ public interface DifferentialBFS {
 
     void printDiffs(Report.Level l);
 
-    void preProcessing();
+    void preProcessing(int batchNumber);
 
     void mergeDeltaDiff();
 }

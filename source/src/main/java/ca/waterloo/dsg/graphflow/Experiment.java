@@ -37,17 +37,15 @@ public class Experiment {
 
     //
     //This is the base directory for dataset files. I need to change it to be a parameter.
-    // The default is set to either khaled's or Semih's machine for easy debug.
     //
-    //From Semih's Machine:
-    //private static String DEFAULT_ARG_BASE_DIR = "/Users/semihsalihoglu/Desktop/research/waterloo/graphflow/github/datasets/";
     private static final String ARG_NEW_FILE_FORMAT = "useNewFormat";
+    private static final String ARG_WRITE_BATCHES = "writeBatches";
     private static final String ARG_TIMERS = "useTimers";
     private static final String SPLIT_REGEX = "\t+|\\s+|,";
     private static final long MEGABYTE = 1024L * 1024L;
     private static String ARG_BASE_DIR = "baseDir";
     //From Khaled's machine
-    private static String DEFAULT_ARG_BASE_DIR = "/Users/U6035886/Uwaterloo/semih-new-project/dataset/";
+    private static String DEFAULT_ARG_BASE_DIR = "/Users/khaled/dataset/";
     private static String ARG_GRAPH_FILE_TO_LOAD = "graphFileToLoad";
     private static String DEFAULT_ARG_GRAPH_FILE_TO_LOAD = "soc-Epinions1-90.txt";
     private static String ARG_CONNECTED_QUERY_FILE = "connQueryFile";
@@ -104,7 +102,7 @@ public class Experiment {
     // It decides if we should edit the weights or delete/add edges
     private static String ARG_UPDATE_OR_DELETEADD = "edit_or_deleteadd";
     private static String DEFAULT_ARG_UPDATE_OR_DELETEADD = "deleteadd";
-    private static int DEFAULT_ARG_PREPARATION_QUERIES = 10;
+    private static int DEFAULT_ARG_PREPARATION_QUERIES = 1;
     private final boolean useNewFormat;
     private Random addDeleteRand;
     private Random srcDestRand;
@@ -140,6 +138,7 @@ public class Experiment {
     private int edgeWeightRange;
     private boolean backtrack;
     private boolean printDistances;
+    private boolean writeBatches;
 
     public Experiment(String baseDir, String graphFileToLoad, boolean useNewFormat, String connectedQueryFile,
                       String disconnectedQueryFile, String addEdgesFile, String delEdgesFile, String editEdgesFile,
@@ -147,7 +146,7 @@ public class Experiment {
                       double connectedQueryPercentage, int numBatches, int batchSize, int addDeleteSeed,
                       int srcDestSeed, int edgeWeightSeed, boolean isWeighted, int edgeWeightRange, boolean backtrack,
                       boolean printDistances, String updateAction, int landmarkNumber, float dropProbability,
-                      DistancesWithDropBloom.DropType dropType, String bloomType, int dropMinimum, int dropMaximum) {
+                      DistancesWithDropBloom.DropType dropType, String bloomType, int dropMinimum, int dropMaximum, boolean writeBatches) {
         this.baseDir = baseDir;
         this.graphFileToLoad = graphFileToLoad;
         this.useNewFormat = useNewFormat;
@@ -173,6 +172,7 @@ public class Experiment {
         this.bloomType = bloomType;
         this.dropMinimum = dropMinimum;
         this.dropMaximum = dropMaximum;
+        this.writeBatches = writeBatches;
 
         this.isWeighted = isWeighted;
         if (isWeighted) {
@@ -217,6 +217,7 @@ public class Experiment {
         String baseDir = cmd.getOptionValue(ARG_BASE_DIR, DEFAULT_ARG_BASE_DIR);
         String graphFileToLoad = cmd.getOptionValue(ARG_GRAPH_FILE_TO_LOAD, DEFAULT_ARG_GRAPH_FILE_TO_LOAD);
         boolean useNewFormat = Boolean.parseBoolean(cmd.getOptionValue(ARG_NEW_FILE_FORMAT, "false"));
+        boolean writeBatches = Boolean.parseBoolean(cmd.getOptionValue(ARG_WRITE_BATCHES, "false"));
         String connectedQueryFile = cmd.getOptionValue(ARG_CONNECTED_QUERY_FILE, DEFAULT_ARG_CONNECTED_QUERY_FILE);
         String disconnectedQueryFile =
                 cmd.getOptionValue(ARG_DISCONNECTED_QUERY_FILE, DEFAULT_ARG_DISCONNECTED_QUERY_FILE);
@@ -300,7 +301,7 @@ public class Experiment {
                         addEdgesFile, delEdgesFile, editEdgesFile, deletionProbability, executorType, numQueries,
                         connectedQueryPercentage, numBatches, batchSize, addDeleteSeed, srcDestSeed, edgeWeightSeed,
                         isWeighted, edgeWeightRange, backtrack, printDistances, updateAction, landmarkNumber,
-                        dropProbability, dropType, bloomType, dropMinimum, dropMaximum);
+                        dropProbability, dropType, bloomType, dropMinimum, dropMaximum,writeBatches);
 
         System.out.println("Memory after initiating experiment " + getMBmemory());
         // run the experiment
@@ -318,7 +319,8 @@ public class Experiment {
         options.addOption(ARG_BASE_DIR, ARG_BASE_DIR, true, "base directory where the experimental " + "datasets are");
         options.addOption(ARG_GRAPH_FILE_TO_LOAD, ARG_GRAPH_FILE_TO_LOAD, true,
                 "graph file to load and " + "deserialize");
-        options.addOption(ARG_NEW_FILE_FORMAT, ARG_NEW_FILE_FORMAT, true, "use new format?");
+        options.addOption(ARG_NEW_FILE_FORMAT, ARG_NEW_FILE_FORMAT, true, "write DD batches?");
+        options.addOption(ARG_WRITE_BATCHES, ARG_WRITE_BATCHES, true, "use new format?");
         options.addOption(ARG_TIMERS, ARG_TIMERS, true, "enable timers?");
         options.addOption(ARG_CONNECTED_QUERY_FILE, ARG_CONNECTED_QUERY_FILE, true, "A pool of connected queries");
         options.addOption(ARG_DISCONNECTED_QUERY_FILE, ARG_DISCONNECTED_QUERY_FILE, true,
@@ -860,6 +862,7 @@ public class Experiment {
             if (printDistances) {
                 long memory = getMBmemory();
 
+                Report.INSTANCE.error("MaxIterations " + batch_counter + " " + getMaxIteration());
                 Report.INSTANCE.error("BatchMemory " + batch_counter + " " + memory + " MB");
                 Report.INSTANCE.error("BatchTimeGC " + batch_counter + " " + gcTime + " ms");
 
@@ -877,6 +880,8 @@ public class Experiment {
                             .error("BatchDistance " + batch_counter + " " + Arrays.toString(getSizesOfDistances()));
                     Report.INSTANCE.error("RecalculateNumber " + batch_counter + " " +
                             Arrays.toString(getRecalculateNumbers()));
+                    Report.INSTANCE.error("RecalculateNumber " + batch_counter + " " +
+                            Arrays.toString(getSetVertexChangeNumbers()));
                     Report.INSTANCE.error("Keep = " + DistancesWithDropBloom.keepCuonter + " Drpo = " +
                             DistancesWithDropBloom.dropoCuonter);
                     Report.INSTANCE.error("RecalculateStats " + batch_counter + " " +
@@ -942,6 +947,11 @@ public class Experiment {
         Distances.numQueries = numQueries;
         DistancesDC.numQueries = numQueries;
 
+        if(ExecutorType.isLandmark(executorType))
+            Distances.numQueries = numQueries + landmarkNumber*2;
+
+        System.out.println("++++ Making total number of queries = "+Distances.numQueries);
+
         // it starts from 0, because we already initialized the first plan
         for (int i = 1; i <= numQueries; i++) {
             Pair<Integer, Integer> query = srcDstPairs.get(i);
@@ -961,7 +971,7 @@ public class Experiment {
             ContinuousShortestPathsExecutor.getInstance().addShortestPathPlan(
                     (ContinuousShortestPathPlan) new ContinuousShortestPathPlanner(structuredQueries[i])
                             .plan(i, executorType, backtrack, this.dropProbability, this.dropType, this.bloomType,
-                                    this.dropMinimum, this.dropMaximum));
+                                    this.dropMinimum, this.dropMaximum, this.landmarkNumber));
         }
     }
 
@@ -1010,7 +1020,7 @@ public class Experiment {
             ContinuousShortestPathsExecutor.getInstance().addShortestPathPlan(
                     (ContinuousShortestPathPlan) new ContinuousShortestPathPlanner(structuredQueries[i])
                             .plan(i, ExecutorType.SPSP_W_CDD, backtrack, this.dropProbability, this.dropType,
-                                    this.bloomType, this.dropMinimum, this.dropMaximum));
+                                    this.bloomType, this.dropMinimum, this.dropMaximum, this.landmarkNumber));
 
             System.out.println(String.format("*** collecting stats from query %s: %s", i, continuousSPQueries[i]));
         }
@@ -1150,6 +1160,23 @@ public class Experiment {
         } else {
             prepareAddDeleteBatchesOld();
         }
+
+        if (writeBatches) {
+            System.out.println("Writing batches");
+            for (int j = 0; j < batchData.size(); j++) {
+                var writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("batch-"+(j+1)+".txt")));
+                var batch = batchData.get(j);
+                System.out.println("Batch " + j + ": size = " + batch.currentEdgeIndex);
+                for (int i = 0; i < batch.currentEdgeIndex; i++) {
+                    writer.write(String.format("%d,%d,%s,%d%s\n",
+                            batch.fromVertexId[i],batch.toVertexId[i],batch.type[i] == BatchType.ADDITION ? "+1" : "-1",(int)batch.weight[i],
+                            isRPQ(executorType) ? "," + TypeAndPropertyKeyStore.getInstance().mapShortToStringType(batch.edgeLabel[i]) : ""));
+                }
+                writer.close();
+            }
+            return;
+        }
+
         // One extra step required for DC
         if(isDC(executorType))
             prepareBatchDiffsDC();
@@ -1169,6 +1196,7 @@ public class Experiment {
          */
         if (ExecutorType.isProb(executorType)) {
             MultiQueryDiffBloomPerQuery.expectedElementPerFilter = bloomFilterSize;
+            System.out.println("Bloom filter expected number of elements is "+bloomFilterSize);
         }
         //collectQueryStats(10);
 
@@ -1204,6 +1232,7 @@ public class Experiment {
             //        " --> "+shortestPathPlan.getSrcDstDistance());
         }
 
+        Report.INSTANCE.error("MaxIterations 0 " + getMaxIteration());
         Report.INSTANCE.error("BatchMemory 0 " + getMBmemory() + " MB");
         Report.INSTANCE.error("BatchAnswer 0 " + Arrays.toString(distances.toArray()));
         if (isDiff(executorType)) {
@@ -1239,8 +1268,10 @@ public class Experiment {
         gcEndTime =
                 ManagementFactory.getGarbageCollectorMXBeans().stream().mapToLong(mxBean -> mxBean.getCollectionTime())
                         .sum();
+        Report.INSTANCE.error("MaxIterations N " + getMaxIteration());
         Report.INSTANCE.error("BatchMemory N " + getMBmemory() + " MB");
-        Report.INSTANCE.error("BatchAnswer N " + Arrays.toString(distances.toArray()));
+
+        Report.INSTANCE.error("BatchAnswer N " + Arrays.toString(srcDstDistances.get(srcDstDistances.size()-1).toArray()));
         if (isDiff(executorType)) {
             Report.INSTANCE.error("VerticesWithDiff N " + Arrays.toString(getNumberOfVertices()));
             Report.INSTANCE.error("BatchDistance N " + Arrays.toString(getSizesOfDistances()));
@@ -1248,6 +1279,9 @@ public class Experiment {
             Report.INSTANCE.error("Keep = " + DistancesWithDropBloom.keepCuonter + " Drpo = " +
                     DistancesWithDropBloom.dropoCuonter);
             Report.INSTANCE.error("RecalculateStats N " + getRecalculateStats());
+        }
+        if(isLandmark(executorType)){
+            Report.INSTANCE.error("LandmarkDistance N " + Arrays.toString(getSizesOfLandmarkDistances()));
         }
         System.out.printf("Batches GC time: %s\n", Timer.elapsedDurationString(gcEndTime - gcStartTime));
 
@@ -1344,6 +1378,30 @@ public class Experiment {
         return sizesArray;
     }
 
+
+
+    public int[] getSetVertexChangeNumbers() {
+        List<ContinuousShortestPathPlan> differentialPlans = ContinuousShortestPathsExecutor.getShortestPathPlans();
+        int[] sizesArray = new int[differentialPlans.size()];
+        for (int i = 0; i < differentialPlans.size(); i++) {
+            sizesArray[i] = ((ContinuousDiffBFSShortestPathPlan) differentialPlans.get(i)).getSetVertexChangeNumbers();
+        }
+        return sizesArray;
+    }
+
+    public int getMaxIteration() {
+        int max=0;
+        int total = 0;
+        int count = 0;
+        List<ContinuousShortestPathPlan> differentialPlans = ContinuousShortestPathsExecutor.getShortestPathPlans();
+
+        for (int i = 0; i < differentialPlans.size(); i++) {
+            int maxIteration = ((ContinuousDiffBFSShortestPathPlan) differentialPlans.get(i)).getMaxIteration();
+            if (maxIteration > max)
+                max = maxIteration;
+        }
+        return max;
+    }
     public Map getRecalculateStats() {
         List<ContinuousShortestPathPlan> differentialPlans = ContinuousShortestPathsExecutor.getShortestPathPlans();
         Map<Integer,Integer> vertexRecalculateStats = new HashMap<Integer,Integer> (1);
@@ -1373,6 +1431,15 @@ public class Experiment {
         for (int i = 0; i < differentialPlans.size(); i++) {
             sizesArray[i] = ((ContinuousDiffBFSShortestPathPlan) differentialPlans.get(i)).getSizeOfDistances();
         }
+        return sizesArray;
+    }
+
+    public int[] getSizesOfLandmarkDistances() {
+        List<ContinuousShortestPathPlan> differentialPlans = ContinuousShortestPathsExecutor.getShortestPathPlans();
+        int[] sizesArray;
+
+        sizesArray = differentialPlans.get(0).getSizeOfLandmarkDistances();
+
         return sizesArray;
     }
 

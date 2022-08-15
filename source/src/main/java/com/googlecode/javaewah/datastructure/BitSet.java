@@ -22,7 +22,7 @@ public final class BitSet implements Cloneable {
         if (sizeinbits < 0) {
             throw new NegativeArraySizeException("negative number of bits: " + sizeinbits);
         }
-        this.data = new long[(sizeinbits + 63) / 64];
+        this.data = new long[(int) (((double)sizeinbits + 63) / 64)];
     }
 
     public int andcardinality(BitSet bs) {

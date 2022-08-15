@@ -19,8 +19,6 @@ public class GenerateWeightedGraphs {
     //This is the base directory for dataset files. I need to change it to be a parameter.
     // The default is set to either khaled's or Semih's machine for easy debug.
     //
-    //From Semih's Machine:
-    //private static String DEFAULT_ARG_BASE_DIR = "/Users/semihsalihoglu/Desktop/research/waterloo/graphflow/github/datasets/";
     public static String DEFAULT_ARG_SEED_EDGE_WEIGHT = "8881453";
     public static String ARG_EDGE_WEIGHT_RANGE = "edgeWeightRange";
     public static String DEFAULT_ARG_EDGE_WEIGHT_RANGE = "10";

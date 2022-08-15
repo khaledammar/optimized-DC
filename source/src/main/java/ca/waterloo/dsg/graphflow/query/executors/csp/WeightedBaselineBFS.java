@@ -23,18 +23,19 @@ public class WeightedBaselineBFS {
 
     int source;
     int destination;
-    Map<Integer, Long> tempFrontier = new HashMap<>();
-    private Set<Integer> frontier = new HashSet<>();
-    private Map<Integer, Long> distance = new HashMap<>();
+    protected Map<Integer, Long> tempFrontier = new HashMap<>();
+    protected Set<Integer> frontier = new HashSet<>();
+    protected Map<Integer, Long> distance = new HashMap<>();
 
-    private WeightedBaselineBFS() {
+    public WeightedBaselineBFS() {
+
     }
 
     public static WeightedBaselineBFS getInstance() {
         return INSTANCE;
     }
 
-    private void init(int source, int destination) {
+    protected void init(int source, int destination) {
         this.source = source;
         this.destination = destination;
         this.distance.clear();
@@ -86,7 +87,7 @@ public class WeightedBaselineBFS {
         }
     }
 
-    private void updateNbrDistances(int currVertex, SortedAdjacencyList adjList, int nbrIndex,
+    protected void updateNbrDistances(int currVertex, SortedAdjacencyList adjList, int nbrIndex,
                                     Map<Integer, Long> newFrontier) {
 
         int nbrId = adjList.neighbourIds[nbrIndex];

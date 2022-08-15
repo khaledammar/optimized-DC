@@ -1,0 +1,117 @@
+package ca.notused.waterloo.dsg.graphflow.query.executors.csp;
+
+import com.skjegstad.utils.BloomFilter;
+import mvm.provenance.BloomFilterIndex;
+import mvm.provenance.Hasher;
+import mvm.provenance.InsDelUpdateStatistics;
+import mvm.provenance.SearchStatistics;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ *
+ * Instead of representing a diff for each query, we want to share the overhead among queries.
+ * In this class, the map key is the iteration, but the value is
+ * This is a class that represent a data structure to store diffs permanently as we process
+ * multiple batches. We do not want to interact with the map directly because we want to encapsulate the details of
+ * how the data structure of diffs are implemented inside this class.
+ *
+ *
+ * Instead of using hashtable to represent diffs, we are going to use a bloom filter.
+ * This also means that sometime we will incorrectly assume that a vertex has a diff while it does not.
+ *
+ * ---- Each element in the bloom filter will be a string that represent "query-vertex”
+ * ---- We will use one bloom filter for each iteration
+ *
+ */
+public class MultiQueryDiffBloomIndex {
+
+    static int initIteration = 100;
+    static int expectedElementPerFilter = 1000000;
+    BloomFilterIndex<String> sharedDiffs;
+    ArrayList<Set<Integer>> visitedVertices;
+    static Hasher h = new Hasher();
+
+
+    //        sharedDiffs.insertBloomFilter(bf, new InsDelUpdateStatistics());
+
+    /**
+     * Default constructor
+     */
+    public MultiQueryDiffBloomIndex(){
+        sharedDiffs = new BloomFilterIndex<String>();
+    }
+
+    public BloomFilter<String> createBloomFilter(int id){
+        BloomFilter<String> bf = new BloomFilter<String>(h,0.1,expectedElementPerFilter,1);
+        bf.setID(id);
+        return bf;
+    }
+
+    public String createElement(int queryId, int vertex){
+        return queryId+"-"+vertex;
+    }
+
+    public boolean checkVertexIteration(int queryId, int vertex, int iterationNo){
+        return sharedDiffs.getBloomFilter(iterationNo).contains(createElement(queryId,vertex));
+    }
+
+    /**
+     *
+     * @param q = number of queries
+     */
+    public MultiQueryDiffBloomIndex(int numQueries){
+        sharedDiffs = new BloomFilterIndex<String>();
+        Hasher h = new Hasher();
+        for(int i=0;i<initIteration;i++)
+            sharedDiffs.insertBloomFilter(new BloomFilter<String>(h,0.1,expectedElementPerFilter,1), new InsDelUpdateStatistics());
+
+        visitedVertices = new ArrayList<>(numQueries);
+        for(int i=0;i<numQueries;i++)
+            visitedVertices.add(new HashSet<>(1));
+    }
+
+    /**
+     * A function that returns a set of all vertices with one or more diffs.
+     * This query is very expensive when using bloom filter. It is only needed for reporting or
+     * to "findNewMinDistanceVertexInFrontier". The latter is needed when a vertex increase its distance because of a delete or an edge update.
+     * For now, I will not support those and return an empty set.
+     * @return
+     */
+    public Set<Integer> getVerticesWithDiff(int q){
+        return visitedVertices.get(q);
+    }
+
+    public void addDiffValues(int q, int vertex, short iteration){
+        List<Integer> iterations = sharedDiffs.search(createElement(q,vertex), new SearchStatistics());
+
+        sharedDiffs.
+        visitedVertices.get(q).add(vertex);
+    }
+
+    public boolean containsVertex(int q,int vertex, int initIteration){
+        return sharedDiffs.get(initIteration).contains(createElement(q,vertex));
+    }
+
+    /**
+     * Return a list of iterations that a vertex might have diffs for
+     * @param q = the query context
+     * @param vertex = the vertex in question
+     * @return
+     */
+    public List<Integer> getDiffs(int q,int vertex){
+        List<Integer> iterList = new ArrayList<>();
+        String element = this.createElement(q,vertex);
+        Integer iterIndex = 0;
+        for(BloomFilter<String> blm: sharedDiffs){
+            if(blm.contains(element))
+                iterList.add(iterIndex);
+            iterIndex++;
+        }
+        return iterList;
+    }
+
+}

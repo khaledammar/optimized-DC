@@ -28,6 +28,15 @@ public class NewUnidirectionalWeightedDifferentialBFS extends NewUnidirectionalD
     /**
      * @see {@link NewUnidirectionalDifferentialBFS}.
      */
+    public NewUnidirectionalWeightedDifferentialBFS(int queryId, int source, int destination, boolean backtrack, Direction direction,
+                                                    DropIndex dropIndex, Queries queryType) {
+
+        super(queryId, source, destination, direction, backtrack, queryType);
+    }
+
+    /**
+     * @see {@link NewUnidirectionalDifferentialBFS}.
+     */
     public NewUnidirectionalWeightedDifferentialBFS(int queryId, int source, int destination, boolean backtrack,
                                                     DropIndex dropIndex, float prob, DistancesWithDropBloom.DropType dropType, String bloomType,
                                                     int minimumDegree, int maxDegree, Queries queryType) {
@@ -74,26 +83,11 @@ public class NewUnidirectionalWeightedDifferentialBFS extends NewUnidirectionalD
                                    short currentIterationNo) {
 
         int neighbourId = currentVsAdjList.neighbourIds[neighborIdIndex];
-        //TODO: This is a bug that need to be fixed, we should never get a negative id - check the neighbor size before visiting all itemes in neighbors list
-        if (neighbourId < 0) {
-            return;
-        }
-
         long currentNbrEdgeWeight = (long) currentVsAdjList.weights[neighborIdIndex];
-        /**
-         * There was a bug here by using the latest Distance instead of the distance from last iteration
-         */
         long vertexsCurrentDist = distances.getDistance(currentVertexId, (short) (currentIterationNo - 1), true);
-        long nbrsCurrentDist = distances.getDistance(neighbourId, currentIterationNo, true);
 
-        if (Report.INSTANCE.appReportingLevel == Report.Level.ERROR && DistancesWithDropBloom.debug(neighbourId)) {
-            System.out.println(
-                    "++ dist( " + currentVertexId + " ) = " + vertexsCurrentDist + " + " + currentNbrEdgeWeight);
-            System.out.println("++ dist( " + neighbourId + " ) = " + nbrsCurrentDist);
-        }
-        if (vertexsCurrentDist + currentNbrEdgeWeight < nbrsCurrentDist) {
-            distances.setVertexDistance(neighbourId, currentIterationNo, vertexsCurrentDist + currentNbrEdgeWeight);
-        }
+        updateNbrsDistance(currentVertexId,vertexsCurrentDist,neighbourId, currentNbrEdgeWeight,currentIterationNo);
+
     }
 
 

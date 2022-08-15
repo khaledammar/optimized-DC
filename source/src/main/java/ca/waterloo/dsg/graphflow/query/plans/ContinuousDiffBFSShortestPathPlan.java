@@ -5,6 +5,7 @@ import ca.waterloo.dsg.graphflow.graph.Graph.Direction;
 import ca.waterloo.dsg.graphflow.query.executors.csp.*;
 import ca.waterloo.dsg.graphflow.query.operator.AbstractDBOperator;
 import ca.waterloo.dsg.graphflow.util.Report;
+import ca.waterloo.dsg.graphflow.util.Timer;
 
 import java.util.Map;
 
@@ -19,10 +20,13 @@ public class ContinuousDiffBFSShortestPathPlan extends ContinuousShortestPathPla
     DistancesWithDropBloom.DropType dropType;
     String bloomType;
     int minimumDegree, maxDegree;
+    int landmarkNumber;
+
 
     public ContinuousDiffBFSShortestPathPlan(int queryId, int source, int destination, AbstractDBOperator outputSink,
                                              ExecutorType executorType, boolean backtrack, float dropProbability,
-                                             DistancesWithDropBloom.DropType dropType, String bloomType, int minimumDegree, int maxDegree) {
+                                             DistancesWithDropBloom.DropType dropType, String bloomType, int minimumDegree,
+                                             int maxDegree, int landmarkNumber) {
         super(queryId, source, destination, outputSink);
 
         this.backtrack = backtrack;
@@ -31,9 +35,11 @@ public class ContinuousDiffBFSShortestPathPlan extends ContinuousShortestPathPla
         this.bloomType = bloomType;
         this.minimumDegree = minimumDegree;
         this.maxDegree = maxDegree;
+        this.landmarkNumber = landmarkNumber;
+        this.executorType = executorType;
 
         newBatch = true;
-        setDiffBFS(executorType);
+        setDiffBFS();
 
         if (initialDiffBFS != null) {
             //Report.INSTANCE.debug("**** this.initialDiffBFS.continueBFS();  query=" + queryId);
@@ -46,9 +52,10 @@ public class ContinuousDiffBFSShortestPathPlan extends ContinuousShortestPathPla
         } else {
             //Report.INSTANCE.debug("**** this.diffBFS.continueBFS();");
             this.diffBFS.continueBFS();
-            //Report.INSTANCE.debug("**** this.diffBFS.mergeDeltaDiff();");
             this.diffBFS.mergeDeltaDiff();
+            Report.INSTANCE.debug("**** Initial computation results ****");
             this.diffBFS.printDiffs();
+            Report.INSTANCE.debug("**** Loaded ****");
         }
     }
 
@@ -58,7 +65,7 @@ public class ContinuousDiffBFSShortestPathPlan extends ContinuousShortestPathPla
 
         newBatch = true;
         this.backtrack = backtrack;
-        setDiffBFS(executorType);
+        setDiffBFS();
         diffBFS.continueBFS();
     }
 
@@ -67,11 +74,58 @@ public class ContinuousDiffBFSShortestPathPlan extends ContinuousShortestPathPla
         diffBFS.initRecalculateNumbers();
     }
 
-    private void setDiffBFS(ExecutorType executorType) {
+    private void setDiffBFS() {
 
         //Report.INSTANCE.debug(" ** ContinuousDiffBFSShortestPathPlan Constructor ** " + executorType);
 
         switch (executorType) {
+
+            case PR_DC:
+                this.diffBFS = new NewDifferentialPRDC(queryId, source, destination, Direction.FORWARD);
+                break;
+            case PR_CDD:
+                this.diffBFS = new NewDifferentialPR(queryId, destination, Direction.FORWARD, backtrack,
+                        NewUnidirectionalDifferentialBFS.Queries.PR);
+                this.initialDiffBFS = null;
+                break;
+            case PR_CDD_PROB:
+                this.diffBFS = new NewDifferentialPR(queryId, destination, Direction.FORWARD, backtrack,
+                        NewUnidirectionalDifferentialBFS.DropIndex.BLOOM, dropProbability, dropType, bloomType,
+                        minimumDegree, maxDegree, NewUnidirectionalDifferentialBFS.Queries.PR);
+                this.initialDiffBFS = new NewDifferentialPR(0, destination, Direction.FORWARD, backtrack,
+                        NewUnidirectionalDifferentialBFS.Queries.PR);
+                break;
+            case PR_CDD_DET:
+                this.diffBFS = new NewDifferentialPR(queryId, destination, Direction.FORWARD, backtrack,
+                        NewUnidirectionalDifferentialBFS.DropIndex.HASH_TABLE, dropProbability, dropType, bloomType,
+                        minimumDegree, maxDegree, NewUnidirectionalDifferentialBFS.Queries.PR);
+                this.initialDiffBFS = new NewDifferentialPR(0, destination, Direction.FORWARD, backtrack,
+                        NewUnidirectionalDifferentialBFS.Queries.PR);
+                break;
+
+            case WCC_DC:
+                this.diffBFS = new NewDifferentialWCCDC(queryId, source, destination, Direction.FORWARD);
+                break;
+            case WCC_CDD:
+                this.diffBFS = new NewDifferentialWCC(queryId, destination, Direction.FORWARD, backtrack,
+                        NewUnidirectionalDifferentialBFS.Queries.WCC);
+                this.initialDiffBFS = null;
+                break;
+            case WCC_CDD_PROB:
+                this.diffBFS = new NewDifferentialWCC(queryId, destination, Direction.FORWARD, backtrack,
+                        NewUnidirectionalDifferentialBFS.DropIndex.BLOOM, dropProbability, dropType, bloomType,
+                        minimumDegree, maxDegree, NewUnidirectionalDifferentialBFS.Queries.WCC);
+                this.initialDiffBFS = new NewDifferentialWCC(0, destination, Direction.FORWARD, backtrack,
+                        NewUnidirectionalDifferentialBFS.Queries.WCC);
+                break;
+            case WCC_CDD_DET:
+                this.diffBFS = new NewDifferentialWCC(queryId, destination, Direction.FORWARD, backtrack,
+                        NewUnidirectionalDifferentialBFS.DropIndex.HASH_TABLE, dropProbability, dropType, bloomType,
+                        minimumDegree, maxDegree, NewUnidirectionalDifferentialBFS.Queries.WCC);
+                this.initialDiffBFS = new NewDifferentialWCC(0, destination, Direction.FORWARD, backtrack,
+                        NewUnidirectionalDifferentialBFS.Queries.WCC);
+                break;
+
 
             case SPSP_W_DC:
                 this.diffBFS = new NewDifferentialSPSPDC(queryId, source, destination, Direction.FORWARD);
@@ -289,7 +343,13 @@ public class ContinuousDiffBFSShortestPathPlan extends ContinuousShortestPathPla
             // assume Forward direction for now!
             case LANDMARK_DIFF:
                 this.diffBFS = new LandmarkUnidirectionalUnweightedDifferentialBFS(queryId, source, destination,
-                        Direction.FORWARD, backtrack, 10000, NewUnidirectionalDifferentialBFS.Queries.SPSP);
+                        Direction.FORWARD, backtrack, landmarkNumber, NewUnidirectionalDifferentialBFS.Queries.Landmark_SPSP);
+                this.initialDiffBFS = null;
+                break;
+
+            case LANDMARK_W_DIFF:
+                this.diffBFS = new LandmarkUnidirectionalWeightedDifferentialBFS(queryId, source, destination,
+                        Direction.FORWARD, backtrack, landmarkNumber, NewUnidirectionalDifferentialBFS.Queries.Landmark_W_SPSP);
                 this.initialDiffBFS = null;
                 break;
 
@@ -305,7 +365,7 @@ public class ContinuousDiffBFSShortestPathPlan extends ContinuousShortestPathPla
     /**
      * Executes the Unidirectional Differential-BFS
      */
-    public void execute() {
+    public void execute(int batch_number) {
 /*
         if (Report.INSTANCE.appReportingLevel == Report.Level.DEBUG) {
             Report.INSTANCE.debug(" ***************************************************");
@@ -314,16 +374,22 @@ public class ContinuousDiffBFSShortestPathPlan extends ContinuousShortestPathPla
         }
 
  */
-
-        if (diffBFS.getClass() ==
-                ca.waterloo.dsg.graphflow.query.executors.csp.LandmarkUnidirectionalUnweightedDifferentialBFS.class) {
-            diffBFS.preProcessing();
+        long startTime, endTime;
+        if (ExecutorType.isLandmark(executorType)){
+            //System.out.println("=====================================");
+            startTime = System.nanoTime();
+            diffBFS.preProcessing(batch_number);
+            endTime = System.nanoTime();
             newBatch = false;
+            //System.out.println("Landmark Index Time = "+ Timer.elapsedNanoToMilliString(endTime-startTime));
+            //System.out.println("=====================================");
         }
 
-        long startTime = System.nanoTime();
+        //System.out.println("=====================================");
+        //System.out.println("=====================================");
+        startTime = System.nanoTime();
         diffBFS.executeDifferentialBFS();
-        long endTime = System.nanoTime();
+        endTime = System.nanoTime();
 
         //Report.INSTANCE.error("Query "+source+"-"+destination+" "+(endTime - startTime));
         if (Report.INSTANCE.appReportingLevel == Report.Level.INFO) {
@@ -336,10 +402,19 @@ public class ContinuousDiffBFSShortestPathPlan extends ContinuousShortestPathPla
         return diffBFS.getRecalculateNumbers();
     }
 
+    public int getSetVertexChangeNumbers() {
+        return diffBFS.getSetVertexChangeNumbers();
+    }
+
+
+
     public Map getRecalculateStat(){
         return diffBFS.getRecalculateStats();
     }
 
+    public int getMaxIteration(){
+        return diffBFS.getMaxIteration();
+    }
     public int getSizeOfDistances() {
         return diffBFS.sizeOfDistances();
     }

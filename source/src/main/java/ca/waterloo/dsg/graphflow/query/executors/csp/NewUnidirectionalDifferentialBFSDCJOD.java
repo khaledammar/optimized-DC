@@ -61,7 +61,11 @@ public abstract class NewUnidirectionalDifferentialBFSDCJOD implements Different
     }
 
     // dummy function required by interface and used by Landmark
-    public void preProcessing() {
+    public void preProcessing(int batchNumber) {
+    }
+
+    public int getMaxIteration(){
+        return distancesR.latestIteration;
     }
 
     @Override
@@ -113,10 +117,7 @@ public abstract class NewUnidirectionalDifferentialBFSDCJOD implements Different
         return distancesR.numberOfVerticesWithDiff();
     }
 
-    private void initFrontierAndSourceDistance(int queryId) {
-        distancesR = new DistancesDC(queryId, source, destination, direction, "Reduce");
-        distancesR.frontier.add(source);
-    }
+    abstract void initFrontierAndSourceDistance(int queryId);
 
     abstract boolean shouldStopEarly(short iteration);
 

@@ -76,7 +76,7 @@ public class ContinuousShortestPathsExecutor {
         int queryNum = 1;
         for (ContinuousShortestPathPlan plan : continuousShortestPathPlans) {
             //System.out.println("Execute query "+queryNum );
-            plan.execute();
+            plan.execute(batch_number);
             queryNum++;
         }
     }

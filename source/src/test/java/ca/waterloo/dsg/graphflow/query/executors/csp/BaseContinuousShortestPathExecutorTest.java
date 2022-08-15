@@ -73,7 +73,7 @@ public class BaseContinuousShortestPathExecutorTest {
             var structuredQuery = new StructuredQueryParser().parse(query);
             ContinuousShortestPathsExecutor.getInstance().addShortestPathPlan(
                     (ContinuousShortestPathPlan) new ContinuousShortestPathPlanner(structuredQuery)
-                            .plan(i + 1, executorType, false, 0.5F, dropType, "Query", 2, 13));
+                            .plan(i + 1, executorType, false, 0.5F, dropType, "Query", 2, 13,10));
         }
 
         List<List<Long>> srcDstDistances = new ArrayList<>();

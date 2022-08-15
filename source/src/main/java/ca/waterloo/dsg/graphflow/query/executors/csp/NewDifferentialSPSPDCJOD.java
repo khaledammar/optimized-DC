@@ -15,6 +15,14 @@ public class NewDifferentialSPSPDCJOD extends NewUnidirectionalDifferentialBFSDC
         super(queryId, source, destination, Direction.FORWARD);
     }
 
+    protected void initFrontierAndSourceDistance(int queryId) {
+        distancesR = new DistancesDC(queryId, source, destination, direction, NewUnidirectionalDifferentialBFS.Queries.SPSP, "Reduce");
+        distancesR.frontier.add(source);
+    }
+    public int getSetVertexChangeNumbers()
+    {
+        return 0;
+    }
 
     @Override
     public int getQueryId() {

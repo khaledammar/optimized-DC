@@ -67,8 +67,12 @@ public class MultiQueryDiff {
     }
 
     public int size(int q) {
-        var x = sharedDiffs.get(q);
-        return x.size();
+        var diffs = sharedDiffs.get(q);
+        int total = 0;
+        for (var d : diffs.values())
+            total += d[0];
+
+        return total;
     }
 
     public Map<Integer, short[]> getDiffs(int q) {
@@ -98,11 +102,14 @@ public class MultiQueryDiff {
     }
 
     public void print() {
+        /*
         for (int q = 0; q < sharedDiffs.size(); q++) {
             var x = sharedDiffs.get(q);
             for (var entry : x.entrySet()) {
-                //Report.INSTANCE.debug(q + ": " + entry.getKey() + " --> [" + Distances.distancesString(entry.getValue()) + "]");
+                Report.INSTANCE.debug(q + ": " + entry.getKey() + " --> [" + Distances.distancesString(entry.getValue()) + "]");
             }
         }
+
+         */
     }
 }

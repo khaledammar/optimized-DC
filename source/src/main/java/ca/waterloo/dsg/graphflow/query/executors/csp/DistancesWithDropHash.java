@@ -252,6 +252,9 @@ public class DistancesWithDropHash extends Distances {
             return !doNotskip;
         } else { // Selective
             int vertexDegree = Graph.getInstance().getVertexDegree(vertexId, direction);
+            if (queryType == NewUnidirectionalDifferentialBFS.Queries.WCC ||
+                    queryType == NewUnidirectionalDifferentialBFS.Queries.PR )
+                vertexDegree += Graph.getInstance().getVertexBWDDegree(vertexId);
             if (vertexDegree >= maximumDegree || (vertexDegree > minimumDegree && doNotskip)) {
                 return false;
             } else {
@@ -321,7 +324,7 @@ public class DistancesWithDropHash extends Distances {
         }
 
         if (iterationNo == latestIteration && Long.MAX_VALUE != distance) {
-            frontier.add(vertexId);
+            addVtoFrontier(vertexId);
             nextFrontierSize += Graph.getInstance().getVertexDegree(vertexId, direction);
 
             if (debug(vertexId)) {
@@ -465,7 +468,7 @@ public class DistancesWithDropHash extends Distances {
         for (Integer vertex : getVerticesWithDiff()) {
             if (droppedDiffs.checkVertexIteration(queryId, vertex, iterationNo, true) ||
                     getAllIterations(vertex).contains(iterationNo)) {
-                frontier.add(vertex);
+                addVtoFrontier(vertex);
                 nextFrontierSize += Graph.getInstance().getVertexDegree(vertex, direction);
             }
         }
@@ -609,12 +612,19 @@ Then, it will not report it because it think that it already exist but it was dr
                             newBatches);
         }
 
+        long defaultValue = Long.MAX_VALUE;
+        if (queryType == NewUnidirectionalDifferentialBFS.Queries.WCC)
+            defaultValue = vertexId;
+
+        if (queryType == NewUnidirectionalDifferentialBFS.Queries.PR)
+            defaultValue = SIXM;
+
         if (vertexId == source) {
             return 0;
         }
 
         if (iterationNo <= 0) {
-            return Long.MAX_VALUE;
+            return defaultValue;
         }
 
         short[] distances;
@@ -632,7 +642,7 @@ Then, it will not report it because it think that it already exist but it was dr
             }
         }
 
-        long latestDistance = Long.MAX_VALUE;
+        long latestDistance = defaultValue;
         int distances_index = ((distances[0]) * 5) - 4;
 
         while (distances_index >= 1) {

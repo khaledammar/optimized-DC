@@ -17,24 +17,32 @@ public class LandmarkUnidirectionalUnweightedDifferentialBFS extends NewUnidirec
 
 
     static HashMap<Integer, Landmark> landmarks = new LinkedHashMap<>(10);
+    static int number_landmark;
+    static int landmark_counter = 1;
     long landmark_distance = -1;
+    static int lastProcessedBatch = -1;
     public LandmarkUnidirectionalUnweightedDifferentialBFS(int queryId, int source, int destination,
-                                                           Graph.Direction direction, boolean backtrack, int k, Queries queryType) {
+                                                           Graph.Direction direction, boolean backtrack, int k,
+                                                           Queries queryType) {
 
-        super(queryId, source, destination, direction, backtrack, queryType);
+        super(queryId+2*k, source, destination, direction, backtrack, queryType);
+        number_landmark = k;
+        this.mergeDeltaDiff();
 
         //Report.INSTANCE.debug("------ LandmarkUnidirectionalUnweightedDifferentialBFS - Landmark");
 
         if (landmarks.isEmpty()) {
 
             Report.INSTANCE.debug("** Landmark is empty");
-
+            Report.INSTANCE.debug("** Find top-K vertices, K = "+k);
             HashMap<Integer, Integer> sources = Graph.getInstance().getTopK(k, direction);
 
             Report.INSTANCE.debug("** Potential Landmarks : " + Arrays.toString(sources.keySet().toArray()));
 
             for (Map.Entry<Integer, Integer> entry : sources.entrySet()) {
+                Report.INSTANCE.debug("Landmark : "+entry.getKey()+ " - "+entry.getValue());
                 Landmark l = new Landmark(entry.getKey(), entry.getValue(), direction);
+                Report.INSTANCE.debug("Adding Landmark : "+l);
                 landmarks.putIfAbsent(entry.getKey(), l);
             }
 
@@ -52,20 +60,33 @@ public class LandmarkUnidirectionalUnweightedDifferentialBFS extends NewUnidirec
         initFrontierAndSourceDistance();
     }
 
+    public int[] sizeOfLandmarkDistances(){
+        int[] distance = new int[number_landmark];
+        int counter = 0;
+
+        for (Map.Entry<Integer, LandmarkUnidirectionalUnweightedDifferentialBFS.Landmark> entry : landmarks.entrySet()) {
+            distance[counter++] = entry.getValue().sptFWD.sizeOfDistances() + entry.getValue().sptBWD.sizeOfDistances();
+        }
+        return distance;
+    }
+
     public static long getLandmarkDistance(int source, int destination) {
         long min_distance = Long.MAX_VALUE;
+        long distance, srcDistance, dstDistance;
         for (Map.Entry<Integer, Landmark> entry : landmarks.entrySet()) {
 
-            long distance = entry.getValue().sptBWD.distances.getLatestDistance(source) +
-                    entry.getValue().sptFWD.distances.getLatestDistance(destination);
+            srcDistance = entry.getValue().sptBWD.distances.getLatestDistance(source);
+            dstDistance = entry.getValue().sptFWD.distances.getLatestDistance(destination);
+
+            if(srcDistance == Long.MAX_VALUE || dstDistance == Long.MAX_VALUE)
+                continue;
+            else
+                distance = srcDistance + dstDistance;
 
             if (distance < min_distance) {
                 min_distance = distance;
             }
         }
-
-        //Report.INSTANCE.debug("** Landmark distance "+min_distance);
-
         return min_distance;
     }
 
@@ -78,15 +99,6 @@ public class LandmarkUnidirectionalUnweightedDifferentialBFS extends NewUnidirec
         }
     }
 
-    @Override
-    public void updateNbrsDistance(int currentVertexId, SortedAdjacencyList currentVsAdjList, int neighborIdIndex,
-                                   short currentIterationNo) {
-        int neighbourId = currentVsAdjList.neighbourIds[neighborIdIndex];
-        if (Long.MAX_VALUE == distances.getLatestDistance(neighbourId) && !landmarks.keySet().contains(neighbourId)) {
-            distances.clearAndSetOnlyVertexDistance(neighbourId, currentIterationNo /* iteration no */,
-                    currentIterationNo /* distance */);
-        }
-    }
 
     /**
      * This function only runs if the neighbor distance is infinity, otherwise it does nothing!
@@ -100,19 +112,13 @@ public class LandmarkUnidirectionalUnweightedDifferentialBFS extends NewUnidirec
     public void updateNbrsDistance(int currentVertexId, long vertexsCurrentDist, int neighbourId,
                                    long neighbourWeight, short currentIterationNo) {
 
-        Report.INSTANCE.debug("------ updateNbrsDistance - Landmark - " + neighbourId);
-
-        // ignore landmark distances!
-        if (landmarks.keySet().contains(neighbourId)) {
-            return;
-        }
-
-        Report.INSTANCE.debug("== Neighbor distance is " + distances.getLatestDistance(neighbourId) + " vs " +
-                Double.MAX_VALUE + " ? " + (Double.MAX_VALUE == distances.getLatestDistance(neighbourId)));
-        if (Double.MAX_VALUE == distances.getLatestDistance(neighbourId)) {
-            distances.clearAndSetOnlyVertexDistance(neighbourId, currentIterationNo /* iteration no */,
-                    currentIterationNo /* distance */);
-        }
+            if (!landmarks.keySet().contains(neighbourId)
+                    && vertexsCurrentDist + 1 < distances.getNewDistance(neighbourId, currentIterationNo, true, currentVertexId)
+                    && vertexsCurrentDist + 1 < getLandmarkDistance(source,neighbourId)
+            ) {
+                distances.clearAndSetOnlyVertexDistance(neighbourId, currentIterationNo /* iteration no */,
+                        currentIterationNo /* distance */);
+            }
     }
 
     boolean doesPathExist() {
@@ -142,168 +148,34 @@ public class LandmarkUnidirectionalUnweightedDifferentialBFS extends NewUnidirec
         Report.INSTANCE.debug("* Empty Frontier? = " + distances.isFrontierEmpty(currentIterationNo));
         Report.INSTANCE.debug("* Frontier: = " + Arrays.toString(distances.getCurrentFrontier().toArray()));
 
-        if ((diffs_distance != Double.MAX_VALUE) ||
-                (distances.isFrontierEmpty(currentIterationNo) && landmark_distance != Double.MAX_VALUE)) {
-            return true;
-        } else {
-            return false;
-        }
+        return super.shouldStopBFSEarly(currentIterationNo) || currentIterationNo >= landmark_distance;
     }
 
-    public void takeNewBFSStep() {
-
-        Report.INSTANCE.debug("------ takeNewBFSStep -- Landmark");
-
-        Set<Integer> lastFrontier = distances.incrementIterationNoAndGetPreviousFrontier();
-        // This loop ensures that we can only break after completely finishing traversing the
-        // level completely.
-        for (int currentVertexId : lastFrontier) {
-
-            Report.INSTANCE.debug("== Vertex in Frontier " + currentVertexId);
-
-            SortedAdjacencyList adjList = getOutNeighbours(currentVertexId,true, direction, (short) (distances.latestIteration+1));
-            if (SortedAdjacencyList.isNullOrEmpty(adjList)) {
-                continue;
-            }
-
-            long vertexsCurrentDist = distances.getLatestDistance(currentVertexId);
-
-            for (int i = 0; i < adjList.getSize(); i++) {
-                // If the vertex is not the destination, has no outgoing neighbors that may help this query/direction, then no need to it to frontier!
-                int neighbourVertexId = adjList.getNeighbourId(i);
-
-                Report.INSTANCE.debug("== neighbor vertex " + neighbourVertexId + " -- ignore if part of landmarks!");
-
-                if (!landmarks.keySet().contains(neighbourVertexId)) {
-                    updateNbrsDistance(currentVertexId, vertexsCurrentDist, neighbourVertexId,
-                            (long) adjList.getNeighbourWeight(i), distances.latestIteration);
-                }
-            }
-        }
-    }
-
-    /**
-     * Given a set of edges that have been updated, for each iteration i of the BFS, adds vertices
-     * that should be fixed at i.
-     * By default: For each diff edge (u, v), let t1,...,tk be the times u's distance was
-     * updated. Then, we add v to be fixed for each iteration number t_i+1 because u may
-     * have updated v's distance at t_i and v would be in the frontier at t_i+1.
-     * <p>
-     * <p>
-     * Ignore changes to vertices in landmark!
-     */
-    public void addVerticesToFix(List<int[]> diffEdges) {
-
-        Report.INSTANCE.debug("------ addVerticesToFix ");
-
-        int edgeSource, edgeDest;
-        for (int[] edge : diffEdges) {
-            edgeSource = direction == Graph.Direction.FORWARD ? edge[0] : edge[1];
-            edgeDest = direction == Graph.Direction.FORWARD ? edge[1] : edge[0];
-
-            if (direction == Graph.Direction.FORWARD) {
-                Report.INSTANCE.debug(edge[0] + " --> " + edge[1]);
-
-                if (landmarks.keySet().contains(edge[0])) {
-                    continue;
-                }
-            } else {
-                Report.INSTANCE.debug(edge[0] + " <-- " + edge[1]);
-
-                if (landmarks.keySet().contains(edge[1])) {
-                    continue;
-                }
-            }
-
-            for (Object object : distances.getAllDistances(edgeSource)) {
-
-                Distances.Diff distanceIterPair = (Distances.Diff) object;
-                //verticesToFix.addVToFix(edgeDest /* vToFix */,
-                //        distanceIterPair.iterationNo + 1 /* iterationNo */);
-
-                addVFORFix(edgeDest, (short) (distanceIterPair.iterationNo + 1));
-            }
-        }
-    }
-
-    public void preProcessing() {
+    public void preProcessing(int batchNumber) {
 
         Report.INSTANCE.debug("------ preProcessing -- landmark");
-
-        for (Landmark l : landmarks.values()) {
-            l.sptFWD.executeDifferentialBFS();
-            l.sptBWD.executeDifferentialBFS();
+        if(batchNumber > lastProcessedBatch) {
+            for (Landmark l : landmarks.values()) {
+                l.sptFWD.executeDifferentialBFS();
+                l.sptBWD.executeDifferentialBFS();
+            }
+            lastProcessedBatch = batchNumber;
         }
         landmark_distance = getLandmarkDistance(source, destination);
     }
 
-    /**
-     * Fixes the BFS differentially.
-     * This is called from ContinuousDiffBFSShortestPathPlan.execute()
-     * <p>
-     * This is similar to to regular execution, but it needs to update the Landmark SPTs first!
-     */
-    public void executeDifferentialBFS() {
+    public static boolean canAddVtoFrontier(int vertexId) {
+        if(landmarks.keySet().contains(vertexId))
+            return false;
+        else
+            return true;
+    }
 
-        //Report.INSTANCE.debug("------ executeDifferentialBFS -- landmark");
-
-        // Prepare a list of vertices that may impact the shortest path
-        // based on added/deleted edges
-        addVerticesToFixFromDiffEdges();
-
-        // if there is no changes in SP, return!
-        if (verticesToFix.isEmpty) {
-            return;
-        }
-
-        // go through all iterations, and fix one step at a time
-        // Stop when:
-        // 1- destination found
-        // 2- Frontier is empty
-        // 3- last iteration is reached
-        short t = 1;
-
-        Report.INSTANCE.debug("== revisiting all iterations");
-        while (t <= distances.latestIteration && t <= landmark_distance) {
-
-            Report.INSTANCE.debug("== iteration #" + t);
-
-            fixOneBFSStep(t);
-            if (distances.isFrontierEmpty(t) || shouldStopBFSEarly(t)) {
-                Report.INSTANCE.debug("** Frontier is empty or destination found");
-                break;
-            }
-            if (t < distances.latestIteration) {
-                ++t;
-            } else {
-                break;
-            }
-        }
-
-        // clear list of vertices
-        Report.INSTANCE.debug("== Clear list of vertices to fix");
-        verticesToFix.clear();
-
-        // Empty frontier or destination found?
-        if (distances.isFrontierEmpty(t) || shouldStopBFSEarly(t)) {
-
-            // change latest iteration
-            if (t < distances.latestIteration) {
-                distances.setLatestIterationNumber(t);
-            }
-
-            // update path when necessary!
-            if (backtrack && doesPathExist() && (shortestPath.isEmpty() || didShortestPathChange)) {
-                backtrack();
-            } else if (!doesPathExist() && distances.isFrontierEmpty(t) && !shortestPath.isEmpty()) {
-                shortestPath.clear();
-            }
-        } else {
-
-            Report.INSTANCE.debug("== more BFS is needed");
-            // continue BFS if more iteration needed
-            continueBFS();
-        }
+    boolean shouldSetNewValue(int vertexId, long newVal, long oldVal){
+        if (newVal < getLandmarkDistance(source,vertexId))
+            return super.shouldSetNewValue(vertexId,newVal,oldVal);
+        else
+            return false;
     }
 
     public long getSrcDstDistance() {
@@ -354,33 +226,6 @@ public class LandmarkUnidirectionalUnweightedDifferentialBFS extends NewUnidirec
         Report.INSTANCE.error("** Landmarks diffs size = " + sizes);
     }
 
-    /**
-     * Runs a unidirectional BFS starting from the frontier. This method is called twice. First,
-     * when the continuous query is first registered and an initial BFS from scratch runs. Second,
-     * each time the differentially maintained BFS is stuck and needs to extend the existing
-     * frontier.
-     * <p>
-     * This is called when we want to run further BFS steps to find the destination
-     */
-    public void continueBFS() {
-        // Khaled:
-        // change the order, because if frontier is empty, then shouldStopBFSEarly will Fail with Null Pointer Exception
-
-        Report.INSTANCE.debug("------ continueBFS ");
-
-        while (!distances.isFrontierEmpty(distances.latestIteration) &&
-                !shouldStopBFSEarly(distances.latestIteration) && distances.latestIteration < landmark_distance) {
-            takeNewBFSStep();
-        }
-        if (backtrack) {
-            if (doesPathExist()) {
-                backtrack();
-            } else {
-                // Could not find the destination.
-                numTimesShortestPathWasNotFound++;
-            }
-        }
-    }
 
     public class Landmark {
 
@@ -388,24 +233,47 @@ public class LandmarkUnidirectionalUnweightedDifferentialBFS extends NewUnidirec
         NewUnidirectionalUnweightedDifferentialBFS sptBWD;
         int vertex_id;
         int degree;
+        int landmark_query_id;
         Graph.Direction direction;
         Graph.Direction reverseDirection;
 
         Landmark(int vertex_id, int degree, Graph.Direction d) {
+
+            Report.INSTANCE.debug("Creating Landmark : "+vertex_id+ " - "+degree);
+            this.landmark_query_id = landmark_counter;
+            landmark_counter +=1;
             this.vertex_id = vertex_id;
             this.degree = degree;
             this.direction = d;
-            sptFWD = new NewUnidirectionalUnweightedDifferentialBFS(queryId, vertex_id, -1, direction, false,queryType);
+
+            Report.INSTANCE.debug("---- Forward query");
+            sptFWD = new NewUnidirectionalUnweightedDifferentialBFS(landmark_query_id*2-1, vertex_id, -1, direction, false,Queries.SPSP);
+            sptFWD.mergeDeltaDiff();
+            sptFWD.distances.print();
             if (d == Graph.Direction.FORWARD) {
                 reverseDirection = Graph.Direction.BACKWARD;
             } else {
                 reverseDirection = Graph.Direction.FORWARD;
             }
 
-            sptBWD = new NewUnidirectionalUnweightedDifferentialBFS(queryId, vertex_id, -1, reverseDirection, false, queryType);
 
+
+            Report.INSTANCE.debug("---- Backward query");
+            sptBWD = new NewUnidirectionalUnweightedDifferentialBFS(landmark_query_id*2, vertex_id, -1, reverseDirection, false, Queries.SPSP);
+            sptBWD.mergeDeltaDiff();
+
+
+            Report.INSTANCE.debug("*** Continue Forward query");
             sptFWD.continueBFS();
+            sptFWD.mergeDeltaDiff();
+            sptFWD.distances.print();
+
+            Report.INSTANCE.debug("*** Continue Backward query");
             sptBWD.continueBFS();
+            sptBWD.mergeDeltaDiff();
+
+
+            sptFWD.distances.print();
         }
     }
 }

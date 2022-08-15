@@ -164,7 +164,7 @@ public class MultiQueryDiffDC {
     public void print(List<short[]> diffStore) {
         /*
         for (var entry : sharedDiffs.entrySet()) {
-            Report.INSTANCE.debug(entry.getKey() + " --> [" + DistancesDC.distancesString(entry.getValue(), diffStore) + "]");
+            Report.INSTANCE.print(entry.getKey() + " --> [" + DistancesDC.distancesString(entry.getValue(), diffStore) + "]");
         }
 
          */

@@ -13,7 +13,7 @@ import java.util.*;
 public class MultiQueryDiffHashPerQueryPrimitive extends MultiQueryDiffHash {
 
     static int numQueries = 0;
-    static int INIT_DROPPED_VERTEX = 10000;
+    static int INIT_DROPPED_VERTEX = 10;
     static int SHORT_MASK = 0xffff;
     ArrayList<Int2IntOpenHashMap> sharedVertex;
     ArrayList<short[]> sharedBlock;

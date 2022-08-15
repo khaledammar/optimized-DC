@@ -13,6 +13,7 @@ import java.util.List;
 public class ContinuousBaselineShortestPathExecutor {
     private static final ContinuousBaselineShortestPathExecutor INSTANCE = new ContinuousBaselineShortestPathExecutor();
     private List<ContinuousShortestPathPlan> continuousShortestPathPlans = new ArrayList<>();
+    public static int batch_number = 0;
 
     /**
      * Empty private constructor enforces usage of the singleton object {@link #INSTANCE} for this
@@ -48,9 +49,10 @@ public class ContinuousBaselineShortestPathExecutor {
      * Executes all the registered {@link ContinuousDiffBFSShortestPathPlan}s.
      */
     public void execute() {
+        batch_number++;
         Report.INSTANCE.debug(" ** Execute  ContinuousBaselineShortestPathExecutor all queries for batch ###  **");
 
         ContinuousShortestPathPlan.newBatch = true;
-        continuousShortestPathPlans.forEach(plan -> plan.execute());
+        continuousShortestPathPlans.forEach(plan -> plan.execute(batch_number));
     }
 }

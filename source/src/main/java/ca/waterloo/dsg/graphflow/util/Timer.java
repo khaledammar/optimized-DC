@@ -29,13 +29,18 @@ public class Timer {
         return String.format("%.3f s ( %d ns )", nanoDuration / (double) NANOS_PER_SEC, nanoDuration);
     }
 
+    public static String elapsedNanoToMilliString(long nanoDuration) {
+        return String.format("%.3f s ( %.3f ms )", nanoDuration / (double) NANOS_PER_SEC,
+                nanoDuration / (double) NANOS_PER_MILLI);
+    }
+
     public static String elapsedMicroToMilliString(long microDuration) {
         return String.format("%.3f s ( %.3f ms )", microDuration / (double) MICROS_PER_SEC,
                 microDuration / (double) MILLIS_PER_MICRO);
     }
 
     public static String elapsedDurationMicroString(long microDuration) {
-        var fraction = String.format("%03d", microDuration % MICROS_PER_SEC);
+        var fraction = String.format("%06d", microDuration % MICROS_PER_SEC);
         return String.format("%d.%s s ( %d us )", microDuration / MICROS_PER_SEC,
                 fraction.substring(0, Math.min(6, fraction.length())), microDuration);
     }

@@ -59,15 +59,23 @@ public class OptimizedBidirUnweightedDifferentialBFS implements DifferentialBFS 
     }
 
     // dummy function required by interface and used by Landmark
-    public void preProcessing() {
+    public void preProcessing(int batchNumber) {
     }
 
-
+    public int getMaxIteration(){
+        if (fwDiffBFS.getMaxIteration() > bwDiffBFS.getMaxIteration())
+            return fwDiffBFS.getMaxIteration();
+        else
+            return bwDiffBFS.getMaxIteration();
+    }
     public void printStats() {
         fwDiffBFS.printStats();
         bwDiffBFS.printStats();
     }
 
+    public int getSetVertexChangeNumbers() {
+        return fwDiffBFS.getSetVertexChangeNumbers() + bwDiffBFS.getSetVertexChangeNumbers();
+    }
 
     public void printDiffs() {
         fwDiffBFS.printDiffs();

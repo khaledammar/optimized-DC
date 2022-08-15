@@ -14,12 +14,19 @@ public class NewDifferentialSPSPDC extends NewUnidirectionalDifferentialBFSDC {
     }
 
     @Override
+    protected void initFrontierAndSourceDistance(int queryId) {
+        distancesJ = new DistancesDC(queryId, source, destination, direction, NewUnidirectionalDifferentialBFS.Queries.SPSP, "Join");
+        distancesR = new DistancesDC(queryId, source, destination, direction, NewUnidirectionalDifferentialBFS.Queries.SPSP,"Reduce");
+    }
+
+    @Override
     boolean shouldStopEarly(short iteration) {
         return false;
     }
 
     @Override
-    void getNeighborsData(DistancesDC distancesJ, int currentVertexId, short iteration, long currentDistance, short diff) {
+    void getNeighborsData(DistancesDC distancesJ, int currentVertexId, short iteration, long currentDistance,
+                          short diff, boolean shouldRetract) {
         // TODO(sid)
         SortedAdjacencyList adjList = Graph.INSTANCE.getForwardMergedAdjacencyList(currentVertexId);
         if (SortedAdjacencyList.isNullOrEmpty(adjList)) {

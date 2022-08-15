@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/graphflow.iml" filepath="$PROJECT_DIR$/.idea/modules/graphflow.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/graphflow_main.iml" filepath="$PROJECT_DIR$/.idea/modules/graphflow_main.iml" group="graphflow" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/graphflow_test.iml" filepath="$PROJECT_DIR$/.idea/modules/graphflow_test.iml" group="graphflow" />
+    </modules>
+  </component>
+</project>

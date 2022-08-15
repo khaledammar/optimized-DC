@@ -40,6 +40,7 @@ public class DistancesDC {
     protected Map<Integer, AbstractMap.SimpleEntry<Long, Long>> distancesCurrentIter = new HashMap<>();
     protected Set<Integer> frontier = new HashSet<>();
     protected Set<Integer> frontierPrevious = new HashSet<>();
+    public NewUnidirectionalDifferentialBFS.Queries queryType;
 
     protected Graph.Direction direction;
     // The latest iteration number. We maintain the invariant that the IntQueue frontier above
@@ -51,13 +52,15 @@ public class DistancesDC {
     protected int source;
     String name;
 
-    public DistancesDC(int queryId, int source, int destination, Graph.Direction d, String name) {
-        this(queryId, source, destination, d, null, name);
+    public DistancesDC(int queryId, int source, int destination, Graph.Direction d, NewUnidirectionalDifferentialBFS.Queries queryType, String name) {
+        this(queryId, source, destination, d, null, queryType, name);
     }
 
-    public DistancesDC(int queryId, int source, int destination, Graph.Direction d, String type, String name) {
+    public DistancesDC(int queryId, int source, int destination, Graph.Direction d, String type,
+                       NewUnidirectionalDifferentialBFS.Queries queryType, String name) {
         this.queryId = queryId;
         this.name = name;
+        this.queryType = queryType;
         if (type == null) {
             initializeRealDiff();
         } else {
@@ -66,8 +69,18 @@ public class DistancesDC {
         this.direction = d; // only used to detect the nextFrontierSize!
         this.source = source;
 
-        setVertexDistance(source, (short) 0, 0);
-        addTmpDiff(source, 0, (short) 1);
+        if(queryType == NewUnidirectionalDifferentialBFS.Queries.PR) {
+            if (name.equals("Reduce")) {
+                setVertexDistancePR();
+            }
+        }
+        else if (queryType == NewUnidirectionalDifferentialBFS.Queries.WCC) {
+            setVertexDistanceWCC();
+        }
+        else {
+            setVertexDistance(source, (short) 0 /* iteration number */, 0 /* distance */);
+            addTmpDiff(source, 0, (short) 1);
+        }
     }
 
     public static void mergeDiff(Map<Long, Short> diffs, long distance, short diff) {
@@ -414,6 +427,33 @@ public class DistancesDC {
     }
 
     /**
+     * Used for PR
+     *
+     */
+    void setVertexDistancePR() {
+        // This is probably not the best way to initialize the distance of all vertices but it would do!
+        for (int vertex=0; vertex <= Graph.INSTANCE.getHighestVertexId(); vertex++) {
+            setVertexDistance(vertex, (short) 0, Distances.SIXM);
+            addTmpDiff(vertex, Distances.SIXM, (short) 1);
+        }
+    }
+
+    /**
+     * Used for WCC
+     */
+    void setVertexDistanceWCC() {
+        // This is probably not the best way to initialize the distance of all vertices but it would do!
+        for (int vertex=0; vertex <= Graph.INSTANCE.getHighestVertexId(); vertex++) {
+            setVertexDistance(vertex, (short) 0, vertex);
+            if (name.equals("Reduce")) {
+                addTmpDiff(vertex, vertex, (short) 1);
+            }
+        }
+    }
+
+
+
+    /**
      * @param vertexId    ID of a vertex.
      * @param iterationNo iteration number for which to update the distance
      * @param distance    distance of the given vertex to the source in the given iteration number.
@@ -585,12 +625,16 @@ public class DistancesDC {
         /*
         if (Report.INSTANCE.appReportingLevel == Report.Level.DEBUG) {
             Report.INSTANCE.print("----- Distances: " + name);
+
             Report.INSTANCE.print("  deltaDiffs:");
+            /*
             for (var iterDistPair : deltaDiffs.entrySet()) {
-                //Report.INSTANCE.debug(iterDistPair.getKey() + " --> [" + distancesString(iterDistPair.getValue(), diffsStore) + "]");
+                Report.INSTANCE.print(iterDistPair.getKey() + " --> [" + distancesString(iterDistPair.getValue(), diffsStore) + "]");
             }
+
+
             Report.INSTANCE.print("  realDiffs:");
-            realDiff.print(diffsStore);
+            //realDiff.print(diffsStore);
             Report.INSTANCE.print("  lastDiffs:");
             System.out.println(lastDiffs);
             Report.INSTANCE.print("  lastDiffsPrevious:");
@@ -600,7 +644,6 @@ public class DistancesDC {
             Report.INSTANCE.print("  diffpool:");
             System.out.println(diffsPool);
         }
-
          */
     }
 
@@ -620,8 +663,14 @@ public class DistancesDC {
 
     public int size() {
         int size = 0;
-        for (var entry : realDiff.sharedDiffs.values()) {
-            size += entry[0];
+        for (var iterAndPos : realDiff.sharedDiffs.values()) {
+            for (int i = 1; i <= iterAndPos[0] * 2; i += 2) {
+                var diffs = diffsStore.get(iterAndPos[i + 1]);
+                for (int j = 1; j < diffs[0] * 5 + 1; j += 5) {
+                    var df = diffs[j];
+                    size += Math.abs(df);
+                }
+            }
         }
         return size;
     }

@@ -31,7 +31,7 @@ public class DijkstraBaseline {
         this.destination = destination;
         this.distance.clear();
         this.distance.put(this.source, 0L);
-        this.distance.put(this.destination, Long.MAX_VALUE);
+        //this.distance.put(this.destination, Long.MAX_VALUE);
     }
 
     public long execute(int source, int destination, boolean is_weighted) {

@@ -1,6 +1,10 @@
 package ca.waterloo.dsg.graphflow.query.plans;
 
+import ca.waterloo.dsg.graphflow.ExecutorType;
 import ca.waterloo.dsg.graphflow.query.executors.csp.DifferentialBFS;
+import ca.waterloo.dsg.graphflow.query.executors.csp.LandmarkUnidirectionalUnweightedDifferentialBFS;
+import ca.waterloo.dsg.graphflow.query.executors.csp.LandmarkUnidirectionalWeightedBaselineBFS;
+import ca.waterloo.dsg.graphflow.query.executors.csp.LandmarkUnidirectionalWeightedDifferentialBFS;
 import ca.waterloo.dsg.graphflow.query.operator.AbstractDBOperator;
 import ca.waterloo.dsg.graphflow.util.Report;
 
@@ -18,6 +22,7 @@ public abstract class ContinuousShortestPathPlan implements QueryPlan {
     int destination = -1;
     AbstractDBOperator outputSink;
     List<Long> queryTime;
+    ExecutorType executorType;
 
 
     public ContinuousShortestPathPlan(int queryId, int source, int destination, AbstractDBOperator outputSink) {
@@ -67,8 +72,22 @@ public abstract class ContinuousShortestPathPlan implements QueryPlan {
         diffBFS.printDiffs(l);
     }
 
+    public int[] getSizeOfLandmarkDistances() {
+        int[] result = new int[0];
 
-    public abstract void execute();
+        switch (executorType){
+            case LANDMARK_DIFF:
+                return ((LandmarkUnidirectionalUnweightedDifferentialBFS) diffBFS).sizeOfLandmarkDistances();
+            case LANDMARK_W_DIFF:
+                return ((LandmarkUnidirectionalWeightedDifferentialBFS) diffBFS).sizeOfLandmarkDistances();
+            case LANDMARK_W_SPSP:
+                return LandmarkUnidirectionalWeightedBaselineBFS.getInstance().sizeOfLandmarkDistances();
+            default:
+                return result;
+        }
+    }
+
+    public abstract void execute(int batch_number);
 
     public void initializeStats() {
         if (diffBFS != null) {

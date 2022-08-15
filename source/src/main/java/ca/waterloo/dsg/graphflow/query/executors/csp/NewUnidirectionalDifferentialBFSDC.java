@@ -63,13 +63,20 @@ public abstract class NewUnidirectionalDifferentialBFSDC implements Differential
         return queryId;
     }
 
+    public int getSetVertexChangeNumbers()
+    {
+        return 0;
+    }
+    public int getMaxIteration(){
+        return distancesR.latestIteration;
+    }
     public void copyDiffs(DifferentialBFS initDiff) {
         distancesJ.copyDiffs(((NewUnidirectionalDifferentialBFS) initDiff).distances);
         distancesR.copyDiffs(((NewUnidirectionalDifferentialBFS) initDiff).distances);
     }
 
     // dummy function required by interface and used by Landmark
-    public void preProcessing() {
+    public void preProcessing(int batchNumber) {
     }
 
     @Override
@@ -155,14 +162,12 @@ public abstract class NewUnidirectionalDifferentialBFSDC implements Differential
         return distancesR.numberOfVerticesWithDiff();
     }
 
-    private void initFrontierAndSourceDistance(int queryId) {
-        distancesJ = new DistancesDC(queryId, source, destination, direction, "Join");
-        distancesR = new DistancesDC(queryId, source, destination, direction, "Reduce");
-    }
+    abstract void initFrontierAndSourceDistance(int queryId);
 
     abstract boolean shouldStopEarly(short iteration);
 
-    abstract void getNeighborsData(DistancesDC distancesJ, int vertexId, short iteration, long currentDistance, short diff);
+    abstract void getNeighborsData(DistancesDC distancesJ, int vertexId, short iteration, long currentDistance,
+                                   short diff, boolean shouldRetract);
 
     /**
      * Runs a unidirectional BFS starting from the frontier. This method is called twice. First,
@@ -181,14 +186,15 @@ public abstract class NewUnidirectionalDifferentialBFSDC implements Differential
             distancesR.incrementIterationNoAndSetPreviousDiffs();
             distancesJ.lastDiffs.clear();
             //Report.INSTANCE.debug("---- Iteration = " + distancesR.latestIteration);
-            takeBFSStepAt(distancesR.latestIteration);
+            specialOperation(distancesJ, distancesR.latestIteration);
+            takeBFSStepAt(distancesR.latestIteration, true, false);
             if (shouldStopEarly(distancesR.latestIteration)) {
                 break;
             }
         }
     }
 
-    public void takeBFSStepAt(short iteration) {
+    public void takeBFSStepAt(short iteration, boolean print, boolean isDiff) {
 
         // Look at last diffs of `reduce` and generate new diffs for `join`.
         for (var entry : distancesR.lastDiffsPrevious.entrySet()) {
@@ -198,7 +204,7 @@ public abstract class NewUnidirectionalDifferentialBFSDC implements Differential
             for (var vEntry : values.entrySet()) {
                 var currentDistance = vEntry.getKey();
                 var diff = vEntry.getValue();
-                getNeighborsData(distancesJ, currentVertexId, iteration, currentDistance, diff);
+                getNeighborsData(distancesJ, currentVertexId, iteration, currentDistance, diff, !isDiff);
             }
         }
 
@@ -226,49 +232,71 @@ public abstract class NewUnidirectionalDifferentialBFSDC implements Differential
         distancesR.toBeChecked.addAll(frontier);
         //System.out.println(distancesR.lastDiffs);
         distancesR.mergeLastDiffsIntoDelta(iteration);
-        distancesJ.print();
-        distancesR.print();
+        if (print) {
+            distancesJ.print();
+            distancesR.print();
+        }
     }
 
-    private void operate(int vertex, short iteration) {
+    protected void operate(int vertex, short iteration) {
         var current = distancesR.lastDiffs.getOrDefault(vertex, new HashMap<>());
 
-        // Get the previously emitted diffs and flip them.
-        var previous = distancesR.getMergedDiffs(vertex);
-        for (int i = 1; i <= previous[0] * 2; i += 2) {
-            if (previous[i] > iteration) { // Add all until current iteration
-                break;
-            }
-            var diffs = distancesR.diffsStore.get(previous[i + 1]);
-            for (int j = 1; j < diffs[0] * 5 + 1; j += 5) {
-                var distance = Distances.getDistanceFromArray(diffs, j);
-                var diff = (short) -diffs[j]; // flip
-                DistancesDC.mergeDiff(current, distance, diff);
+        if (shouldNegateDiffs()) {
+            // Get the previously emitted diffs and flip them.
+            var previous = distancesR.getMergedDiffs(vertex);
+            for (int i = 1; i <= previous[0] * 2; i += 2) {
+                if (previous[i] > iteration) { // Add all until current iteration
+                    break;
+                }
+                var diffs = distancesR.diffsStore.get(previous[i + 1]);
+                for (int j = 1; j < diffs[0] * 5 + 1; j += 5) {
+                    var distance = Distances.getDistanceFromArray(diffs, j);
+                    var diff = (short) -diffs[j]; // flip
+                    DistancesDC.mergeDiff(current, distance, diff);
+                }
             }
         }
+        var newValue = aggregateFunction(vertex, iteration, distancesJ);
 
-        // Get the min distance among all diffs of `join`.
+        if (newValue != getVertexDefaultValue(vertex)) {
+            DistancesDC.mergeDiff(current, newValue, (short) 1);
+        }
+        if (!current.isEmpty()) {
+            distancesR.lastDiffs.put(vertex, current);
+        }
+    }
+
+    protected long aggregateFunction(int vertex, short iteration, DistancesDC distancesJ){
         var jOutput = distancesJ.getMergedDiffs(vertex);
-        long min = Long.MAX_VALUE;
+        long newValue = getVertexDefaultValue(vertex);
         for (int i = 1; i <= jOutput[0] * 2; i += 2) {
             if (jOutput[i] > iteration) { // Check all until current iteration
                 break;
             }
             var diffs = distancesJ.diffsStore.get(jOutput[i + 1]);
+            // @sidd, is there a bug here?
+            // Why do we need to go through all distances from all iterations instead of taking the last one?
+            // If the reason because we need to accumulate all diffs, then "distance" is not comparable to "newValue".
             for (int j = 1; j < diffs[0] * 5 + 1; j += 5) {
                 long distance = Distances.getDistanceFromArray(diffs, j);
-                if (distance < min) {
-                    min = distance;
+                if (distance < newValue) {
+                    newValue = distance;
                 }
             }
         }
+        return newValue;
+    }
 
-        if (min != Long.MAX_VALUE) {
-            DistancesDC.mergeDiff(current, min, (short) 1);
-        }
-        if (!current.isEmpty()) {
-            distancesR.lastDiffs.put(vertex, current);
-        }
+    protected void specialOperation(DistancesDC distancesJ, short iteration) {
+        // Should be overridden when needed, eg in PR
+    }
+
+    protected long getVertexDefaultValue(int vertex){
+        return Long.MAX_VALUE;
+    }
+
+    protected boolean shouldNegateDiffs(){
+        return true;
     }
 
     /**
@@ -285,46 +313,49 @@ public abstract class NewUnidirectionalDifferentialBFSDC implements Differential
             distancesJ.setPreviousDiffs();
             distancesR.setPreviousDiffs();
             for (var eEntries : Graph.INSTANCE.edgeDiffs.entrySet()) {
-                var eDiffSource = eEntries.getKey();
-
-                // For each update, check if `src` had a diff output from `reduce` in previous iteration.
-                var rDiffs = distancesR.getDiffsAt(eDiffSource, (short) (i - 1), false);
-                if (rDiffs[0] == 0) {
-                    continue;
-                }
-
-                // For each update, get diffs from previous iteration and compute new distances based on the update.
-                for (var eEntry : eEntries.getValue().entrySet()) {
-                    var eDiffDest = eEntry.getKey();
-                    var eDiffs = eEntry.getValue();
-                    var x = distancesJ.lastDiffs.computeIfAbsent(eDiffDest, l -> new HashMap<>());
-
-                    for (int j = 0; j < eDiffs.count; j++) {
-                        if (shouldSkipEdge(i, eDiffs.types[j])) {
-                            continue;
-                        }
-                        long eDistance = (long) eDiffs.distances[j];
-                        var eDiff = eDiffs.diffs[j];
-                        for (int k = 1; k < rDiffs[0] * 5 + 1; k += 5) {
-                            long rDistance = Distances.getDistanceFromArray(rDiffs, k);
-                            var rDiff = rDiffs[k];
-                            var newDist = eDistance + rDistance; // Use distance of `src` from previous iteration and new distance of `dest` from update.
-                            short newDiff = (short) (eDiff * rDiff);
-                            DistancesDC.mergeDiff(x, newDist, newDiff);
-                        }
-                    }
-                }
+                processUpdate(i, eEntries);
             }
             // Then proceed normally.
-            takeBFSStepAt(i);
+            takeBFSStepAt(i, true, true);
         }
 
         if (!distancesR.lastDiffs.isEmpty() && !shouldStopEarly(distancesR.latestIteration)) {
-            distancesR.latestIteration--;
             continueBFS();
         }
 
         mergeDeltaDiff();
+    }
+
+    protected void processUpdate(short iter, Map.Entry<Integer, Map<Integer, DistancesDC.Diff2>> eEntries) {
+        var eDiffSource = eEntries.getKey();
+
+        // For each update, check if `src` had a diff output from `reduce` in previous iteration.
+        var rDiffs = distancesR.getDiffsAt(eDiffSource, (short) (iter - 1), false);
+        if (rDiffs[0] == 0) {
+            return;
+        }
+
+        // For each update, get diffs from previous iteration and compute new distances based on the update.
+        for (var eEntry : eEntries.getValue().entrySet()) {
+            var eDiffDest = eEntry.getKey();
+            var eDiffs = eEntry.getValue();
+            var x = distancesJ.lastDiffs.computeIfAbsent(eDiffDest, l -> new HashMap<>());
+
+            for (int j = 0; j < eDiffs.count; j++) {
+                if (shouldSkipEdge(iter, eDiffs.types[j])) {
+                    continue;
+                }
+                long eDistance = (long) eDiffs.distances[j];
+                var eDiff = eDiffs.diffs[j];
+                for (int k = 1; k < rDiffs[0] * 5 + 1; k += 5) {
+                    long rDistance = Distances.getDistanceFromArray(rDiffs, k);
+                    var rDiff = rDiffs[k];
+                    var newDist = eDistance + rDistance; // Use distance of `src` from previous iteration and new distance of `dest` from update.
+                    short newDiff = (short) (eDiff * rDiff);
+                    DistancesDC.mergeDiff(x, newDist, newDiff);
+                }
+            }
+        }
     }
 
     protected abstract boolean shouldSkipEdge(short iteration, short eType);

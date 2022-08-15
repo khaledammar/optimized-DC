@@ -24,7 +24,7 @@ public class Distances {
     public static int numQueries = 0;
     public static boolean realDiffInitialized = false;
     public static boolean caching = false;
-    public static int setVertexDistanceCounter = 0;
+    public int setVertexDistanceCounter = 0;
     // (iter:short, distance:long) stored as 5 consecutive shorts in short[] array. Index 0 is always the count.
     public static Map<Integer, short[]> deltaDiffs = new HashMap<>();
     protected static MultiQueryDiff realDiff;
@@ -58,6 +58,9 @@ public class Distances {
     protected short latestIteration = 0;
     protected int source, destination;
     protected IterationDistancePair pair1, pair2;
+    protected static final long SIXM = 6000000;
+    protected static final long ONEM = 1000000;
+    protected static final int ONEK = 1000;
 
     /**
      * Default constructor with no source.
@@ -95,7 +98,12 @@ public class Distances {
         this.source = source;
         this.destination = destination;
 
-        setVertexDistance(source, (short) 0 /* iteration number */, 0 /* distance */);
+        if(queryType == NewUnidirectionalDifferentialBFS.Queries.PR)
+            setVertexDistance((short) 0 /* iteration number */, SIXM /* initial PR */);
+        else if (queryType == NewUnidirectionalDifferentialBFS.Queries.WCC)
+            setVertexDistance((short) 0 /* iteration number */);
+        else
+            setVertexDistance(source, (short) 0 /* iteration number */, 0 /* distance */);
 
         pair1 = new IterationDistancePair((short) -1, Long.MAX_VALUE);
         pair2 = new IterationDistancePair((short) -1, Long.MAX_VALUE);
@@ -140,6 +148,7 @@ public class Distances {
     public void initializeRecalculate() {
         System.out.println("---2----- initializeRecalculate : " + recalculateNumber);
         recalculateNumber = 0;
+        setVertexDistanceCounter = 0;
         return;
     }
 
@@ -170,7 +179,7 @@ public class Distances {
 
         for (int v : getVerticesWithDiff()) {
             if (this.isDiffExist(queryId, v, iteration)) {
-                frontier.add(v);
+                addVtoFrontier(v);
             }
         }
         frontierReady = true;
@@ -337,6 +346,15 @@ public class Distances {
         vertexHistory.put(vertexId,stats);
     }
 
+    void countVertexChange(int vertexId) {
+        VertexStats stats = vertexHistory.get(vertexId);
+        if (null == stats) {
+            stats = new VertexStats();
+        }
+        stats.valueChage++;
+        vertexHistory.put(vertexId,stats);
+    }
+
     /**
      * Increments the latestIteration, returns the current frontier, which now that
      * we incremented an iteration, will be the previous frontier, and starts an
@@ -386,7 +404,7 @@ public class Distances {
         // get all vertices that have diffs
         for (Integer vertex : getVerticesWithDiff()) {
             if (isDiffExist(queryId, vertex, iterationNo)) {
-                frontier.add(vertex);
+                addVtoFrontier(vertex);
                 nextFrontierSize += Graph.getInstance().getVertexDegree(vertex, direction);
             }
         }
@@ -433,6 +451,11 @@ public class Distances {
      * @return
      */
     boolean isDiffUseful(int vertexId, short iterationNo) {
+        if(queryType == NewUnidirectionalDifferentialBFS.Queries.PR)
+            return isDiffUsefulPR(vertexId,iterationNo);
+        if(queryType == NewUnidirectionalDifferentialBFS.Queries.WCC)
+            return isDiffUsefulWCC(vertexId,iterationNo);
+
         long distanceCurrent = recalculateDistance(vertexId, iterationNo, true);
         return isDiffUseful(vertexId, iterationNo, distanceCurrent);
     }
@@ -445,6 +468,11 @@ public class Distances {
      * @return
      */
     boolean isDiffUseful(int vertexId, short iterationNo, long distanceCurrent) {
+        if(queryType == NewUnidirectionalDifferentialBFS.Queries.PR)
+            return isDiffUsefulPR(vertexId,iterationNo,distanceCurrent);
+        if(queryType == NewUnidirectionalDifferentialBFS.Queries.WCC)
+            return isDiffUsefulWCC(vertexId,iterationNo,distanceCurrent);
+
         long distancePrevious = getDistance(vertexId, (short) (iterationNo - 1), true);
 
         // check if this diff has an impact
@@ -461,7 +489,7 @@ public class Distances {
             System.out.println(
                     "This is an error at clearVertexDistanceAtT - you cannot clear distance from source vertex = " +
                             vertexId);
-            System.exit(1); // cannot clear a diff from source
+            //System.exit(1); // cannot clear a diff from source
         }
 
         if (isDiffUseful(vertexId, iterationNo, newValue)) {
@@ -598,13 +626,21 @@ public class Distances {
         if (DistancesWithDropBloom.debug(v)) {
             if (realDiff.containsVertex(queryId, v)) {
                 Report.INSTANCE.error("---- getOldDiffs v=" + v + " distances = " +
-                        Arrays.toString(realDiff.getDiffs(queryId, v)));
+                                Distances.distancesString(realDiff.getDiffs(queryId, v)));
             } else {
                 Report.INSTANCE.error("---- getOldDiffs v=" + v + " No distances! ");
             }
         }
 
         return realDiff.getDiffs(queryId, v);
+    }
+
+    public void addVtoFrontier(int vertexId){
+        if ((queryType!= NewUnidirectionalDifferentialBFS.Queries.Landmark_SPSP && queryType != NewUnidirectionalDifferentialBFS.Queries.Landmark_W_SPSP) ||
+                (queryType== NewUnidirectionalDifferentialBFS.Queries.Landmark_SPSP && LandmarkUnidirectionalUnweightedDifferentialBFS.canAddVtoFrontier(vertexId)) ||
+                (queryType== NewUnidirectionalDifferentialBFS.Queries.Landmark_W_SPSP && LandmarkUnidirectionalWeightedDifferentialBFS.canAddVtoFrontier(vertexId))
+        )
+            frontier.add(vertexId);
     }
 
     /**
@@ -615,6 +651,16 @@ public class Distances {
     void setVertexDistance(int vertexId, short iterationNo, long distance) {
 
         setVertexDistanceCounter++;
+        countVertexChange(vertexId);
+        //Graph.INSTANCE.getVertexFWDDegree();
+        Report.INSTANCE
+                .error("---- setVertexDistance v=" + vertexId + " iter= " + iterationNo
+                        + " FWDdegree= " + Graph.INSTANCE.getForwardMergedAdjacencyList(vertexId).getSize()
+                        + " BWDdegree= " + Graph.INSTANCE.getBackwardMergedAdjacencyList(vertexId).getSize());
+        Report.INSTANCE
+                .error("---- setVertexDistance v=" + vertexId + " iter= " + iterationNo
+                        + " FWDdegree= " + Graph.INSTANCE.getVertexFWDDegree(vertexId)
+                        + " BWDdegree= " + Graph.INSTANCE.getVertexBWDDegree(vertexId));
         // if we are going to add a new diff for this distance, but previously remove it we should not remember that
         // any more because vertices in this set will be deleted during merge time.
         toBeDeleted.remove(vertexId);
@@ -625,7 +671,7 @@ public class Distances {
         }
 
         if (iterationNo == latestIteration && Long.MAX_VALUE != distance) {
-            frontier.add(vertexId);
+            addVtoFrontier(vertexId);
 
             nextFrontierSize += Graph.getInstance().getVertexDegree(vertexId, direction);
 
@@ -656,6 +702,113 @@ public class Distances {
         if (Report.INSTANCE.appReportingLevel == Report.Level.DEBUG)
             countLargestDiffSize(vertexId, distances[0]);
     }
+
+    /**
+     * Compare two PR values and return true if they are similar to each other
+     *
+     * @param oldPR
+     * @param newPR
+     * @return
+     */
+    public boolean samePR(long oldPR, long newPR){
+        if (Math.abs(oldPR-newPR)<=ONEK)
+            return true;
+        else
+            return false;
+    }
+
+    /***
+     * Check if a diff is useful by comparing its distance at iteration and at iteration-1
+     * @param vertexId
+     * @param iterationNo
+     * @return
+     */
+    boolean isDiffUsefulPR(int vertexId, short iterationNo) {
+        long distanceCurrent = recalculateDistance(vertexId, iterationNo, true);
+        return isDiffUseful(vertexId, iterationNo, distanceCurrent);
+    }
+
+    /***
+     * Check if a diff is useful by comparing its distance at iteration and at iteration-1
+     * @param vertexId
+     * @param iterationNo
+     * @param distanceCurrent
+     * @return
+     */
+    boolean isDiffUsefulPR(int vertexId, short iterationNo, long distanceCurrent) {
+        long distancePrevious = getDistance(vertexId, (short) (iterationNo - 1), true);
+
+        // check if this diff has an impact
+        if (samePR(distanceCurrent, distancePrevious)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /***
+     * Check if a diff is useful by comparing its distance at iteration and at iteration-1
+     * @param vertexId
+     * @param iterationNo
+     * @return
+     */
+    boolean isDiffUsefulWCC(int vertexId, short iterationNo) {
+        if(iterationNo ==0)
+            return true;
+        long distanceCurrent = recalculateDistance(vertexId, iterationNo, true);
+        return isDiffUsefulWCC(vertexId, iterationNo, distanceCurrent);
+    }
+
+    /***
+     * Check if a diff is useful by comparing its distance at iteration and at iteration-1
+     * @param vertexId
+     * @param iterationNo
+     * @param distanceCurrent
+     * @return
+     */
+    boolean isDiffUsefulWCC(int vertexId, short iterationNo, long distanceCurrent) {
+        if(iterationNo ==0)
+            return true;
+
+        long distancePrevious = getDistance(vertexId, (short) (iterationNo - 1), true);
+
+        // check if this diff has an impact
+        if (distanceCurrent >= distancePrevious) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+
+    /**
+     * This function is used to set the initial value for vertices in case of PR
+     *
+     * @param iterationNo iteration number for which to update the distance
+     * @param distance  distance of the given vertex to the source in the given iteration number.
+     */
+    void setVertexDistance(short iterationNo, long distance) {
+
+        // This is probably not the best way to initialize the distance of all vertices but it would do!
+        for (int vertex=0; vertex <= Graph.INSTANCE.getHighestVertexId(); vertex++)
+            setVertexDistance(vertex, iterationNo, distance);
+    }
+
+    /**
+     * This function is used to set the initial value for vertices in case of WCC.
+     * In this case, we will use the id of each vertex as its initial label (distance)
+     *
+     * @param iterationNo iteration number for which to update the distance
+     *
+     */
+    void setVertexDistance(short iterationNo) {
+        // This is probably not the best way to initialize the distance of all vertices but it would do!
+        for (int vertex=0; vertex <= Graph.INSTANCE.getHighestVertexId(); vertex++)
+            setVertexDistance(vertex, iterationNo, (long) vertex);
+    }
+
+
 
     /**
      * This function is needed if a vertex's distance increase due to changing in weight or a delete
@@ -911,6 +1064,13 @@ public class Distances {
     long getDistance(int vertexId, short iteration,
                      boolean newBatches/*get distances from old batches or the current one*/) {
 
+        long defaultValue = Long.MAX_VALUE;
+        if (queryType == NewUnidirectionalDifferentialBFS.Queries.WCC)
+            defaultValue = vertexId;
+
+        if (queryType == NewUnidirectionalDifferentialBFS.Queries.PR)
+            defaultValue = SIXM;
+
         if (DistancesWithDropBloom.debug(vertexId)) {
             Report.INSTANCE
                     .error("Distances.getDistance - v= " + vertexId + " i= " + iteration + " newBatch? " + newBatches);
@@ -923,9 +1083,9 @@ public class Distances {
             distances = this.getOldDiffs(vertexId); //vIterDistPairMap.get(vertexId);
         }
         if (null == distances) {
-            return Long.MAX_VALUE;
+            return defaultValue;
         } else {
-            long latestDistance = Long.MAX_VALUE;
+            long latestDistance = defaultValue;
             int limit = ((distances[0]) * 5) + 1;
             for (int i = 1; i < limit; i += 5) {
                 short iter = distances[i];
@@ -1033,6 +1193,11 @@ public class Distances {
     }
 
     public long recalculateDistance(int vertexId, short iterationNo, boolean newBatches) {
+
+        if (queryType == NewUnidirectionalDifferentialBFS.Queries.PR)
+            return recalculatePR(vertexId,iterationNo,newBatches);
+        else if (queryType == NewUnidirectionalDifferentialBFS.Queries.WCC)
+            return recalculateWCC(vertexId,iterationNo,newBatches);
 
         Map.Entry<Integer, Short> pairCheck = new HashMap.SimpleEntry<>(vertexId, iterationNo);
         if (caching) {
@@ -1180,6 +1345,178 @@ public class Distances {
         return minFound;
     }
 
+    public long recalculateWCC(int vertexId, short iterationNo, boolean newBatches) {
+
+        Map.Entry<Integer, Short> pairCheck = new HashMap.SimpleEntry<>(vertexId, iterationNo);
+        if (caching) {
+            if (newBatches) {
+                if (newCache.containsKey(pairCheck)) {
+                    return newCache.get(pairCheck);
+                }
+            } else {
+                if (oldCache.containsKey(pairCheck)) {
+                    return oldCache.get(pairCheck);
+                }
+            }
+        }
+
+        recalculateNumber++;
+        if(Report.INSTANCE.appReportingLevel == Report.Level.DEBUG){
+            countVertexRecalculate(vertexId);
+            recalculateState.put(vertexId,recalculateState.getOrDefault(vertexId,0)+1);
+        }
+        //System.out.println("-------- recalculateDistance : v= "+vertexId+ " i= "+iterationNo + " newBatches? "+newBatches);
+        if (DistancesWithDropBloom.debug(vertexId)) {
+            Report.INSTANCE
+                    .error("-------- recalculateDistanceWCC : v= " + vertexId + " i= " + iterationNo + " newBatches? " +
+                            newBatches);
+        }
+
+        short previousIteration = (short) (iterationNo - 1);
+        long label = vertexId;
+
+        //This is overhead of not keeping all diffs
+        SortedAdjacencyList neighbours = getInNeighbours(vertexId, newBatches, iterationNo);
+        for (int i = 0; i < neighbours.getSize(); i++) {
+
+            Integer nbr = neighbours.getNeighbourId(i);
+            long nbr_dist = this.getDistance(nbr, previousIteration, newBatches /* I may want to use old or new batches based on the original request*/);
+
+            if (DistancesWithDropBloom.debug(nbr) || DistancesWithDropBloom.debug(vertexId)) {
+                System.out.println(
+                        "** " + i + " from " + nbr + " vertex " + vertexId + " is reached by nbr-dist= " + nbr_dist +
+                                " new-distance= " + (nbr_dist) + " label = " + label);
+
+                if (DistancesWithDropBloom.debug(vertexId)){
+                    System.out.println("Neighbour ( "+nbr+") = "+Distances.distancesString(getMergedDiffs(nbr)));
+                }
+            }
+
+            if (nbr_dist < label) {
+                label = nbr_dist;
+            }
+        }
+
+        if (DistancesWithDropBloom.debug(vertexId)){
+            System.out.println("**** Looking at out neighbours");
+        }
+
+        // Repeate for out-neighbours too (WCC looks at undirected version of the graph)
+        neighbours = getOutNeighbours(vertexId, newBatches, iterationNo);
+        for (int i = 0; i < neighbours.getSize(); i++) {
+
+            Integer nbr = neighbours.getNeighbourId(i);
+            long nbr_dist = this.getDistance(nbr, previousIteration, newBatches /* I may want to use old or new batches based on the original request*/);
+
+            if (DistancesWithDropBloom.debug(nbr) || DistancesWithDropBloom.debug(vertexId)) {
+                System.out.println(
+                        "** " + i + " from " + nbr + " vertex " + vertexId + " is reached by nbr-dist= " + nbr_dist +
+                                " new-distance= " + (nbr_dist) + " label = " + label);
+
+                if (DistancesWithDropBloom.debug(vertexId)){
+                    System.out.println("Neighbour ( "+nbr+") = "+Distances.distancesString(getMergedDiffs(nbr)));
+                }
+            }
+
+            if (nbr_dist < label) {
+                label = nbr_dist;
+            }
+        }
+
+        if (DistancesWithDropBloom.debug(vertexId)) {
+            System.out.println("****** final reported dist for " + vertexId + " @ " + iterationNo + " is " + label);
+        }
+
+        if (caching) {
+            if (newBatches) {
+                newCache.put(new HashMap.SimpleEntry<>(vertexId, iterationNo), label);
+            } else {
+                oldCache.put(new HashMap.SimpleEntry<>(vertexId, iterationNo), label);
+            }
+        }
+        return label;
+
+    }
+
+    public long recalculatePR(int vertexId, short iterationNo, boolean newBatches) {
+
+        if(iterationNo == 0)
+            return SIXM;
+
+        //if(vertexId == 0)
+        //    System.out.println("recalculate PR for vertex "+vertexId+" on iteration "+iterationNo);
+
+        Map.Entry<Integer, Short> pairCheck = new HashMap.SimpleEntry<>(vertexId, iterationNo);
+        if (caching) {
+            if (newBatches) {
+                if (newCache.containsKey(pairCheck)) {
+                    return newCache.get(pairCheck);
+                }
+            } else {
+                if (oldCache.containsKey(pairCheck)) {
+                    return oldCache.get(pairCheck);
+                }
+            }
+        }
+
+        recalculateNumber++;
+        if(Report.INSTANCE.appReportingLevel == Report.Level.DEBUG){
+            countVertexRecalculate(vertexId);
+            recalculateState.put(vertexId,recalculateState.getOrDefault(vertexId,0)+1);
+        }
+
+        if (DistancesWithDropBloom.debug(vertexId)) {
+            Report.INSTANCE
+                    .error("-------- recalculateDistance : v= " + vertexId + " i= " + iterationNo + " newBatches? " +
+                            newBatches);
+        }
+
+        short previousIteration = (short) (iterationNo - 1);
+
+        //This is overhead of not keeping all diffs
+        SortedAdjacencyList inNeighbours = getInNeighbours(vertexId, newBatches, iterationNo);
+
+        long total = 0;
+        // loop over inNeighbours to find the minimum distance
+        for (int i = 0; i < inNeighbours.getSize(); i++) {
+
+            Integer nbr = inNeighbours.getNeighbourId(i);
+            int nbrDegree = Graph.getInstance().getForwardMergedAdjacencyList(nbr).getSize();
+
+            /* In this step, I am trying to know the most up-to-date distance of the neighbour
+             * to compute the distance of self based on old/new edges between me and my in neighbours */
+
+            long nbr_dist = this.getDistance(nbr, previousIteration,
+                    newBatches /* I may want to use old or new batches based on the original request*/);
+
+
+            total += nbr_dist / nbrDegree;
+
+            //if(vertexId==0){
+            //    System.out.println("nbr = "+nbr+ " degree= "+nbrDegree+ " PR="+nbr_dist+ " total = "+total);
+            //}
+        }
+
+        long pageRank = ONEM + 5 * total / 6;
+
+        if (DistancesWithDropBloom.debug(vertexId)) {
+            System.out.println("****** final reported dist for " + vertexId + " @ " + iterationNo + " is " + pageRank);
+        }
+
+        if (caching) {
+            if (newBatches) {
+                newCache.put(new HashMap.SimpleEntry<>(vertexId, iterationNo), pageRank);
+            } else {
+                oldCache.put(new HashMap.SimpleEntry<>(vertexId, iterationNo), pageRank);
+            }
+        }
+
+        //if(vertexId == 0)
+        //    System.out.println("recalculate PR for vertex "+vertexId+" on iteration "+iterationNo+ " = "+pageRank + " or "+ Math.round(pageRank));
+        return pageRank;
+    }
+
+
     /**
      * Request a histogram for a certain statistics about this query. It receives one of the following variables:
      * 1- Fix stats
@@ -1190,7 +1527,7 @@ public class Distances {
      * @param stateType
      * @return
      */
-    public Map getVertexStats(int stateType) {
+    public Map<Integer,Float> getVertexStats(int stateType) {
         int degree = 0;
         Map<Integer,Integer> degreeCount = new HashMap<Integer,Integer> (1);
         Map<Integer,Integer> degreeTotal = new HashMap<Integer,Integer> (1);
@@ -1215,7 +1552,40 @@ public class Distances {
         return degreeAvg;
     }
 
+    /**
+     * Request a histogram for a certain statistics about this query. It receives one of the following variables:
+     * 1- Fix stats
+     * 2- Max diff size
+     * 3- Requested stats
+     * 4- Recalculated stats
+     *
+     * @param stateType
+     * @return
+     */
+    public Map<Integer,Integer> getVertexAbsoluteStats(int stateType) {
+        int degree = 0;
+
+        Map<Integer,Integer> degreeTotal = new HashMap<Integer,Integer> (1);
+
+        for (var e : vertexHistory.entrySet()) {
+            // For distance sizes, we are interested in in-degree
+            if (stateType == VertexStats.DIFF_SIZE)
+                degree = Graph.INSTANCE.getVertexDegree(e.getKey(), Graph.Direction.BACKWARD);
+            else
+                degree = Graph.INSTANCE.getVertexDegree(e.getKey(), Graph.Direction.FORWARD);
+
+            degreeTotal.put(degree,
+                    degreeTotal.getOrDefault(degree, 0) + e.getValue().getValue(stateType));
+        }
+
+        return degreeTotal;
+    }
+
     public void printStats() {
+
+        Report.INSTANCE.debug("======== Printing Diffs ===========");
+        print();
+
         Report.INSTANCE.error("======== Printing Statistics ===========");
         Report.INSTANCE.error("======== # vertices " + vertexHistory.keySet().size() + " ==========");
 
@@ -1256,8 +1626,13 @@ public class Distances {
 
         Report.INSTANCE.error("=======================================");
         Report.INSTANCE.error("RecalculateStats " + getVertexStats(VertexStats.RECALCULATE_STATS));
+        Report.INSTANCE.error("RecalculateStats - Absolute " + getVertexAbsoluteStats(VertexStats.RECALCULATE_STATS));
         Report.INSTANCE.error("=======================================");
         Report.INSTANCE.error("DistanceSize " + getVertexStats(VertexStats.DIFF_SIZE));
+        Report.INSTANCE.error("DistanceSize - Absolute " + getVertexAbsoluteStats(VertexStats.DIFF_SIZE));
+        Report.INSTANCE.error("=======================================");
+        Report.INSTANCE.error("VertexChange " + getVertexStats(VertexStats.VertexChange_STATS));
+        Report.INSTANCE.error("VertexChange - Absolute " + getVertexAbsoluteStats(VertexStats.VertexChange_STATS));
         Report.INSTANCE.error("=======================================");
         //Report.INSTANCE.error("         Histogram (#fix, maxSize) ");
         //for(int i=0;i<100;i++)
@@ -1271,15 +1646,16 @@ public class Distances {
         if (Report.INSTANCE.appReportingLevel == Report.Level.DEBUG) {
             Report.INSTANCE.debug("======== Printing distances ===========");
 
+/*
             Report.INSTANCE.debug("DeltaDiffs:");
             for (var iterDistPair : deltaDiffs.entrySet()) {
-                Report.INSTANCE
-                        .debug(iterDistPair.getKey() + " --> [" + distancesString(iterDistPair.getValue()) + "]");
+                Report.INSTANCE.debug(iterDistPair.getKey() + " --> [" + distancesString(iterDistPair.getValue()) + "]");
             }
             Report.INSTANCE.debug("RealDiffs:");
             realDiff.print();
-        }
 
+
+        }
          */
     }
 
@@ -1304,6 +1680,8 @@ public class Distances {
      * @return whether the frontier is empty or not.
      */
     boolean isFrontierEmpty(int iterationNo) {
+
+        //System.out.println("Is frontier @ "+iterationNo+" empty? "+minFrontierDistances.length+ " -- "+minFrontierDistances[iterationNo]);
         return minFrontierDistances.length <= iterationNo || minFrontierDistances[iterationNo] == null;
     }
 
@@ -1316,11 +1694,14 @@ public class Distances {
         public static final int DIFF_SIZE = 2;
         public static final int REQUEST_STATS = 3;
         public static final int RECALCULATE_STATS = 4;
+        public static final int VertexChange_STATS = 5;
+
 
         int addedToFix; // tracks number of times a vertex was added to fix
         int largestDiffSize; // tracks the largest diff size of a vertex
         int valueRequested;  // tracks the number of times vertex value requested
         int recalculated;    // tracks the number of times vertex value was recalculated
+        int valueChage;     // tracks the number of times vertex value has changed
 
         int getValue(int type){
             switch (type){
@@ -1328,14 +1709,16 @@ public class Distances {
                 case DIFF_SIZE: return largestDiffSize;
                 case REQUEST_STATS: return valueRequested;
                 case RECALCULATE_STATS: return recalculated;
+                case VertexChange_STATS: return valueChage;
             }
             return -1;
         }
-        VertexStats(int addedToFix, int largestDiffSize, int valueRequested, int recalculated) {
+        VertexStats(int addedToFix, int largestDiffSize, int valueRequested, int recalculated, int valueChage) {
             this.addedToFix = addedToFix;
             this.largestDiffSize = largestDiffSize;
             this.valueRequested = valueRequested;
             this.recalculated = recalculated;
+            this.valueChage = valueChage;
         }
 
         VertexStats() {
@@ -1343,11 +1726,12 @@ public class Distances {
             this.largestDiffSize = 0;
             this.valueRequested = 0;
             this.recalculated = 0;
+            this.valueChage = 0;
         }
 
         @Override
         public String toString() {
-            String str = "[addedToFix, largestDiffSize, valueRequested, recalculated] = [" + addedToFix + " - " + largestDiffSize + " - " + valueRequested + " - " + recalculated + "]";
+            String str = "[addedToFix, largestDiffSize, valueRequested, recalculated, valueChage] = [" + addedToFix + " - " + largestDiffSize + " - " + valueRequested + " - " + recalculated + " - " + valueChage +"]";
             return str;
         }
     }

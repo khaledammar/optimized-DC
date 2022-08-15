@@ -598,13 +598,16 @@ public class DistancesEfficient {
     public void print() {
 
         Report.INSTANCE.debug("=======================================");
-        Report.INSTANCE.debug("======== Printing distances ===========\n");
+        Report.INSTANCE.debug("======== Printing distances Efficient ===========\n");
+        /*
         for (Entry<Integer, List<Object>> iterDistPair : vIterDistPairMap.entrySet()) {
 
             Report.INSTANCE
                     .debug(iterDistPair.getKey() + " --> " + vertexHistory.get(iterDistPair.getKey()).toString() +
                             "   (" + Arrays.toString(iterDistPair.getValue().toArray()) + ")");
         }
+
+         */
 
         Report.INSTANCE.debug("\n=======================================");
     }

@@ -18,6 +18,13 @@ public class NewDifferentialQ7DC extends NewUnidirectionalDifferentialBFSDC {
     }
 
     @Override
+    protected void initFrontierAndSourceDistance(int queryId) {
+        distancesJ = new DistancesDC(queryId, source, destination, direction, NewUnidirectionalDifferentialBFS.Queries.Q7, "Join");
+        distancesR = new DistancesDC(queryId, source, destination, direction, NewUnidirectionalDifferentialBFS.Queries.Q7,"Reduce");
+    }
+
+
+    @Override
     boolean shouldStopEarly(short iteration) {
         return false;
     }
@@ -39,7 +46,8 @@ public class NewDifferentialQ7DC extends NewUnidirectionalDifferentialBFSDC {
     }
 
     @Override
-    void getNeighborsData(DistancesDC distancesJ, int currentVertexId, short iteration, long currentDistance, short diff) {
+    void getNeighborsData(DistancesDC distancesJ, int currentVertexId, short iteration, long currentDistance,
+                          short diff, boolean shouldRetract) {
         // TODO(sid)
 
         var edgeFilterId = getEdgeType(iteration);

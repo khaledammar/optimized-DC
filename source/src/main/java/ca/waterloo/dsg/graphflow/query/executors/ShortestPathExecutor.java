@@ -45,6 +45,7 @@ public class ShortestPathExecutor {
     // forward direction are denoted by 1, 2, 3... and levels in the backward direction by -1,
     // -2, -3...
     private short[] visitedLevels;
+    private long[] vertexValue;
     // We give each query a local query ID. We keep a global latest query ID and increment this
     // value for each new query. We use this query ID in {@link #visitedVerticesByQueryId} to
     // identify visited vertices during query evaluation. This avoids having to
@@ -98,12 +99,21 @@ public class ShortestPathExecutor {
     }
 
     private void initArrays() {
+        System.out.println("--------- Normal initArrays!");
         // Initialize {@code visitedVerticesByQueryId} on the first query and on overflows.
         Graph graph = Graph.getInstance();
         int extraArraySize = (int) Double.min(graph.getVertexCount() * 0.01, 1000);
         visitedVerticesByQueryId = new int[graph.getVertexCount() + extraArraySize];
         visitedDirections = new boolean[graph.getVertexCount() + extraArraySize];
         visitedLevels = new short[graph.getVertexCount() + extraArraySize];
+        initWCCArrays();
+    }
+
+    private void initWCCArrays() {
+        // Initialize {@code visitedVerticesByQueryId} on the first query and on overflows.
+        Graph graph = Graph.getInstance();
+        int extraArraySize = (int) Double.min(graph.getVertexCount() * 0.01, 1000);
+        vertexValue = new long[graph.getVertexCount() + extraArraySize];
     }
 
     /**
@@ -126,6 +136,82 @@ public class ShortestPathExecutor {
         backwardQueue.reset();
         intersectionSet.clear();
     }
+
+    /**
+     * Initializes the {@link ShortestPathExecutor} for a new query by resetting the data structures
+     * used.
+     */
+    private void initWCCQuery() {
+        queryId++;
+        if (Integer.MIN_VALUE == queryId) {
+            // An overflow has occurred in {@code queryId}. We reset it to 1 and reinitialize
+            // visitedVerticesByQueryId, visitedDirections and visitedLevels arrays to avoid
+            // conflicts with data stored when queryId had value 1 previously.
+            queryId = 1;
+            logger.info("Overflow in ShortestPathExecutor#queryId.");
+            initWCCArrays();
+        } else if (Graph.getInstance().getVertexCount() > visitedVerticesByQueryId.length) {
+            initWCCArrays();
+        }
+        forwardQueue.reset();
+    }
+
+
+    /**
+     * Execute a WCC algorithm using label propagation as a version of (IFE/BFS).
+     *
+     *
+     * @throws NoSuchVertexIDException Throws exception if the specified {@code source} and
+     *                                 {@code target} vertex IDs don't exist.
+     */
+    public int execute_WCC(AbstractDBOperator outputSink) throws NoSuchVertexIDException {
+        long startTime = System.nanoTime();
+        initWCCQuery();
+
+        HashSet<Integer> activeVertices = new HashSet<>();
+        for (int v=0;v<=Graph.INSTANCE.getHighestVertexId();v++){
+            activeVertices.add(v);
+            forwardQueue.enqueue(v);
+            vertexValue[v] = (long) v;
+        }
+
+        /* For Debugging
+
+        System.out.println("\n ============================================= ");
+        System.out.println("Basline Khop Query from "+source+" for "+k);
+
+        System.out.println("Forward size= "+forwardQueue.size()+" - Next = "+forwardQueue.peekNext()+ " - Forward Level = "+forwardLevelNumber);
+
+        */
+
+        while (!forwardQueue.isEmpty()) {
+            int currentVertex = forwardQueue.dequeue();
+
+            // For WCC, we need to look at in and out-neighbours
+            SortedAdjacencyList neighbours = Graph.INSTANCE.getForwardUnMergedAdjacencyList(currentVertex);
+            neighbours.addAll(Graph.INSTANCE.getBackwardUnMergedAdjacencyList(currentVertex));
+
+            if (null == neighbours || neighbours.getSize() == 0) {
+                continue;
+            }
+            for (int i = 0; i < neighbours.getSize(); i++) {
+                int neighbourVertex = neighbours.neighbourIds[i];
+
+                //visitedVerticesByQueryId[neighbourVertex] = queryId;
+
+                if(vertexValue[neighbourVertex] > vertexValue[currentVertex]){
+                    vertexValue[neighbourVertex] = vertexValue[currentVertex];
+                    forwardQueue.enqueue(neighbourVertex);
+                }
+            }
+        }
+
+        long endTime = System.nanoTime();
+        totalTimeTaken += (endTime - startTime);
+
+        return activeVertices.size();
+    }
+
 
     /**
      * Finds all neighbours with in k-hops of the source vertex using BFS.

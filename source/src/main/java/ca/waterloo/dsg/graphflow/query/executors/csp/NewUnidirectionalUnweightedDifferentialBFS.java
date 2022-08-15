@@ -227,6 +227,7 @@ public class NewUnidirectionalUnweightedDifferentialBFS extends NewUnidirectiona
     @Override
     public void updateNbrsDistance(int currentVertexId, SortedAdjacencyList currentVsAdjList, int neighborIdIndex,
                                    short currentIterationNo) {
+        System.out.println("++++++++++++++= WHY");
         int neighbourId = currentVsAdjList.neighbourIds[neighborIdIndex];
         if (Long.MAX_VALUE == distances.getLatestDistance(neighbourId)) {
             distances.clearAndSetOnlyVertexDistance(neighbourId, currentIterationNo /* iteration no */,

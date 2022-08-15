@@ -787,6 +787,10 @@ public class Graph implements GraphflowSerializable {
     public HashMap<Integer, Integer> getTopK(int k, Graph.Direction direction) {
 
         HashMap<Integer, Integer> topK = new LinkedHashMap<>(k);
+
+        if(k==0)
+            return topK;
+
         int minimumPickedDegree = -1;
         int minimumPickedVertex = -1;
 
@@ -795,7 +799,7 @@ public class Graph implements GraphflowSerializable {
         for (int vertex = 0; vertex < forwardAdjLists.length; vertex++) {
 
             int degree = 0;
-            degree = getVertexDegree(vertex, direction);
+            degree = getVertexFWDDegree(vertex)+ getVertexBWDDegree(vertex);// getVertexDegree(vertex, direction);
 
             //Report.INSTANCE.debug("*** vertex " + vertex + " degree = " + degree + " vs min " + minimumPickedDegree);
 
@@ -820,6 +824,51 @@ public class Graph implements GraphflowSerializable {
                 }
             }
         }
+        return topK;
+    }
+
+    /**
+     * @param k
+     * @param direction
+     * @return A hash table of vertex ids/degree with top-K degrees
+     */
+    public HashMap<Integer, Integer> getTopKnotNeighbours(int k) {
+
+        HashMap<Integer, Integer> topK = new LinkedHashMap<>(k);
+
+        if(k==0)
+            return topK;
+
+        int minimumPickedDegree = -1;
+        int minimumPickedVertex = -1;
+
+        //Report.INSTANCE.debug("---- Looking for topK vertices ; k = " + k + " - direction = " + direction);
+
+        HashSet<Integer> ignoredVertices = new LinkedHashSet<>(k);
+        int degree = 0;
+        int maximum = Integer.MIN_VALUE;
+        int maximumVertex = 0;
+        for(int i=0;i<k;i++){
+            maximum = Integer.MIN_VALUE;
+            maximumVertex = 0;
+
+            for (int vertex = 0; vertex < forwardAdjLists.length; vertex++){
+                degree = getVertexFWDDegree(vertex)+ getVertexBWDDegree(vertex);
+                if(degree > maximum && !ignoredVertices.contains(vertex)){
+                    maximum = degree;
+                    maximumVertex = vertex;
+                }
+            }
+
+            topK.put(maximumVertex, maximum);
+            ignoredVertices.add(maximumVertex);
+            for(int nbr=0; nbr<getForwardMergedAdjacencyList(maximumVertex).getSize(); nbr++)
+                ignoredVertices.add(getForwardMergedAdjacencyList(maximumVertex).neighbourIds[nbr]);
+
+            for(int nbr=0; nbr<getBackwardMergedAdjacencyList(maximumVertex).getSize(); nbr++)
+                ignoredVertices.add(getBackwardMergedAdjacencyList(maximumVertex).neighbourIds[nbr]);
+        }
+
         return topK;
     }
 

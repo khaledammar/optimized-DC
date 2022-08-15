@@ -3,6 +3,23 @@ package ca.waterloo.dsg.graphflow;
 import java.util.EnumSet;
 
 public enum ExecutorType {
+
+    //WCC
+    WCC_DC,
+    WCC_DC_JOD,
+    WCC_BASELINE,
+    WCC_CDD,
+    WCC_CDD_DET,
+    WCC_CDD_PROB,
+
+    //PR
+    PR_DC,
+    PR_DC_JOD,
+    PR_BASELINE,
+    PR_CDD,
+    PR_CDD_DET,
+    PR_CDD_PROB,
+
     // SPSP
     SPSP_W_DC,
     SPSP_W_DC_JOD,
@@ -57,6 +74,7 @@ public enum ExecutorType {
     UNI_UNWEIGHTED_DIFF_BFS_HASH,
 
     W_DIJKSTRA,
+    BiDIR_W_DIJKSTRA,
     UNW_DIJKSTRA,
     BIDIR_UNWEIGHTED_DIFF_BFS,
     UNIDIR_WEIGHTED_DIFF_BFS_UNREACHABLE,
@@ -66,30 +84,44 @@ public enum ExecutorType {
     NEW_DIJKSTRA,
     OPT_DIJKSTRA,
     LANDMARK_DIFF,
+    LANDMARK_W_DIFF,
+    LANDMARK_SPSP,
+    LANDMARK_W_SPSP,
     OPTIMIZED_BIDIR_UNWEIGHTED_DIFF_BFS;
 
     private static final EnumSet<ExecutorType> weighted =
             EnumSet.of(SPSP_W_BASELINE, SPSP_W_DC, SPSP_W_DC_JOD, SPSP_W_CDD, SPSP_W_CDD_DET, SPSP_W_CDD_PROB,
                     UNIDIR_WEIGHTED_DIFF_BFS_UNREACHABLE, UNIDIR_WEIGHTED_DIFF_BFS_DROP_RANDOM_VERTEX,
-                    UNIDIR_POSITIVE_WEIGHTED_DIFF_BFS, W_DIJKSTRA);
+                    UNIDIR_POSITIVE_WEIGHTED_DIFF_BFS, BiDIR_W_DIJKSTRA, W_DIJKSTRA, LANDMARK_W_DIFF,LANDMARK_W_SPSP);
     private static final EnumSet<ExecutorType> dc =
             EnumSet.of(SPSP_W_DC, KHOP_DC, Q1_DC, Q2_DC, Q7_DC, Q11_DC, SPSP_W_DC_JOD, KHOP_DC_JOD, Q1_DC_JOD,
-                    Q2_DC_JOD, Q7_DC_JOD, Q11_DC_JOD);
+                    Q2_DC_JOD, Q7_DC_JOD, Q11_DC_JOD, PR_DC, WCC_DC, PR_DC_JOD, WCC_DC_JOD);
     private static final EnumSet<ExecutorType> rpq =
             EnumSet.of(Q1_BASELINE, Q1_CDD, Q1_CDD_DET, Q1_CDD_PROB, Q1_DC, Q1_DC_JOD, Q2_BASELINE, Q2_CDD, Q2_CDD_DET,
                     Q2_CDD_PROB, Q2_DC, Q2_DC_JOD, Q7_CDD, Q7_BASELINE, Q7_CDD_PROB, Q7_CDD_DET, Q7_DC_JOD, Q7_DC,
                     Q11_CDD, Q11_BASELINE, Q11_CDD_PROB, Q11_CDD_DET, Q11_DC_JOD, Q11_DC);
     private static final EnumSet<ExecutorType> baseline =
             EnumSet.of(ExecutorType.UNW_BASELINE, ExecutorType.SPSP_W_BASELINE, ExecutorType.KHOP_BASELINE,
+                    ExecutorType.PR_BASELINE, ExecutorType.WCC_BASELINE,
                     ExecutorType.Q1_BASELINE, ExecutorType.Q2_BASELINE, ExecutorType.Q7_BASELINE,
                     ExecutorType.Q11_BASELINE, ExecutorType.OPT_DIJKSTRA, ExecutorType.NEW_DIJKSTRA,
-                    ExecutorType.UNW_DIJKSTRA, ExecutorType.W_DIJKSTRA);
+                    ExecutorType.UNW_DIJKSTRA, BiDIR_W_DIJKSTRA, ExecutorType.W_DIJKSTRA, LANDMARK_SPSP, LANDMARK_W_SPSP);
     private static final EnumSet<ExecutorType> prob =
             EnumSet.of(ExecutorType.SPSP_W_CDD_PROB, ExecutorType.KHOP_CDD_PROB, ExecutorType.Q1_CDD_PROB,
-                    ExecutorType.Q2_CDD_PROB, ExecutorType.Q7_CDD_PROB, ExecutorType.Q11_CDD_PROB);
+                    ExecutorType.Q2_CDD_PROB, ExecutorType.Q7_CDD_PROB, ExecutorType.Q11_CDD_PROB, PR_CDD_PROB, WCC_CDD_PROB);
     private static final EnumSet<ExecutorType> det =
             EnumSet.of(ExecutorType.SPSP_W_CDD_DET, ExecutorType.KHOP_CDD_DET, ExecutorType.Q1_CDD_DET,
-                    ExecutorType.Q2_CDD_DET, ExecutorType.Q7_CDD_DET, ExecutorType.Q11_CDD_DET);
+                    ExecutorType.Q2_CDD_DET, ExecutorType.Q7_CDD_DET, ExecutorType.Q11_CDD_DET, PR_CDD_DET, WCC_CDD_DET);
+
+    private static final EnumSet<ExecutorType> pr =
+            EnumSet.of(PR_BASELINE, PR_DC, PR_DC_JOD, PR_CDD, PR_CDD_DET, PR_CDD_PROB);
+
+    private static final EnumSet<ExecutorType> wcc =
+            EnumSet.of(WCC_BASELINE, WCC_DC, WCC_DC_JOD, WCC_CDD, WCC_CDD_DET, WCC_CDD_PROB);
+
+    private static final EnumSet<ExecutorType> landmark =
+            EnumSet.of(LANDMARK_DIFF, LANDMARK_W_DIFF, LANDMARK_SPSP, LANDMARK_W_SPSP);
+
 
     public static ExecutorType getFromCommandLineName(String commandLineName) {
         try {
@@ -169,12 +201,12 @@ public enum ExecutorType {
                     return UNW_DIJKSTRA;
                 case "w-dijkstra":
                     return W_DIJKSTRA;
+                case "bi-w-dijkstra":
+                        return BiDIR_W_DIJKSTRA;
                 case "opt-dijkstra":
                     return OPT_DIJKSTRA;
                 case "new-dijkstra":
                     return NEW_DIJKSTRA;
-                case "landmark-diff":
-                    return LANDMARK_DIFF;
                 default:
                     throw new IllegalArgumentException("Unknown continuous sp executor type: " + commandLineName);
             }
@@ -189,8 +221,13 @@ public enum ExecutorType {
         return dc.contains(executorType);
     }
 
+    public static boolean isPR(ExecutorType executorType) {return pr.contains(executorType);}
+    public static boolean isWCC(ExecutorType executorType) {return pr.contains(executorType);}
     public static boolean isRPQ(ExecutorType executorType) {
         return rpq.contains(executorType);
+    }
+    public static boolean isLandmark(ExecutorType executorType) {
+        return landmark.contains(executorType);
     }
 
     public static boolean isBaseLine(ExecutorType executorType) {
@@ -218,6 +255,7 @@ public enum ExecutorType {
 
             case SPSP_W_BASELINE:
             case W_DIJKSTRA:
+            case BiDIR_W_DIJKSTRA:
             case SPSP_W_CDD:
             case UNI_UNWEIGHTED_DIFF_BFS_BLOOM:
             case UNI_UNWEIGHTED_DIFF_BFS_HASH:
