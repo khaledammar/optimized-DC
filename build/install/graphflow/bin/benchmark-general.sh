@@ -4,48 +4,31 @@
 # Check for number of arguments
 if [ $# -ne 20 ]; then
   echo "usage: $0 graph_name workload_name execution_mode number_queries connected_probability batch_size number_updates delete_probability number_runs sign range log_prefix drop_probdrop_type bloom_type java_max_memory bloomSize dropMinimum dropMaximum landmark"
-  echo "#Expected graph names =(EP LJ PA CA TX)"
-  echo "#Expected workloads =(SPSP+UW SPSP+W  SPSP-W+)"
-  echo "#Expected execution mode =(BaseLine+BF BaseLine+DJ Diff+JOT  Diff+JOT+ES Diff+JOT+BI)"
-  echo "#Expected DeleteProbability =(0 0.5 1)"
   echo "# weighted graph file is <graph_name>_weighted_<sign>_<range>"
-  echo "#Example: "
   exit -1
 fi
 
 #Log directory:
-global_log=/home/kammar/semih-new-project/2022-logs/
+global_log=$DC_HOME/logs/
+echo "$global_log"
 
 # Datasets
-datasetDir=/home/kammar/semih-new-project/evaluation/
+datasetDir=$DC_HOME/dataset/
 
 graph_name=$1
 
-#Data files
-# preload unweighted = ${graph_name}_90.shuf
-# preload weighted = ${graph_name}_90_weighted_1-10.shuf
-#
-# Add unweighted = ${graph_name}_10.shuf
-# Add weighted = ${graph_name}_10_weighted_1-10.shuf
-#
-# Del unweighted = ${graph_name}_del.shuf
-# Del weighted = ${graph_name}_del_weighted_1-10.shuf
-#
-
 
 #Workload
-#Expected workloads =(SPSP+UW SPSP+W  SPSP-W+)
 workload_name=$2
 
 
 #Execution Mode
-#ExecMode=(BaseLine+BF BaseLine+DJ Diff+JOT  Diff+JOT+ES Diff+JOT+BI)
 exec_mode=$3
 number_queries=$4
 connected_probability=$5
 batch_size=$6
 
-#typical number of updates is 131072
+#typical number of updates is 100
 number_updates=$7
 delete_probability=$8
 number_runs=$9
@@ -118,7 +101,6 @@ case "${workload_name}" in
 
 "Q1")
    connected_query_file=${graph_name}_Queries.txt.${workload_name}
-   datasetDir=/home/kammar/semih-new-project/evaluation/sf/
    case "${exec_mode}" in
     "BaseLine+BF") execType="${workload_name}-baseline" ;;
     "Diff") execType="${workload_name}_DC" ;;
@@ -133,7 +115,6 @@ case "${workload_name}" in
 
 "Q2")
    connected_query_file=${graph_name}_Queries.txt.${workload_name}
-   datasetDir=/home/kammar/semih-new-project/evaluation/sf/
    case "${exec_mode}" in
     "BaseLine+BF") execType="${workload_name}-baseline" ;;
     "Diff") execType="${workload_name}_DC" ;;
@@ -148,7 +129,6 @@ case "${workload_name}" in
 
 "Q7")
    connected_query_file=${graph_name}_Queries.txt.${workload_name}
-   datasetDir=/home/kammar/semih-new-project/evaluation/sf/
    case "${exec_mode}" in
     "BaseLine+BF") execType="${workload_name}-baseline" ;;
     "Diff") execType="${workload_name}_DC" ;;
@@ -164,7 +144,6 @@ case "${workload_name}" in
 
 "Q11")
    connected_query_file=${graph_name}_Queries.txt.${workload_name}
-   datasetDir=/home/kammar/semih-new-project/evaluation/sf/
    case "${exec_mode}" in
     "BaseLine+BF") execType="${workload_name}-baseline" ;;
     "Diff") execType="${workload_name}_DC" ;;
@@ -236,6 +215,7 @@ export JAVA_OPTS="-Xmx${java_max_mem}g"
 for ((i = 1; i <= ${number_runs}; i++)); do
   my_log=${global_log}/${graph_name}_${log_prefix}_${workload_name}_${exec_mode}_${number_queries}_${nb}_${batch_size}_${delete_probability}_${connected_probability}_${drop_prob}_${drop_type}_${bloom_type}_${dropMinimum}_${dropMaximum}_${java_max_mem}_${landmark}_"$(date +%Y%m%d-%H%M%S)"
 
+echo `pwd`
   ./bench-init.sh ${my_log}
 
   echo "experiment-cspq-control -printdistances=false -LandmarkNumber=$landmark  -graphFileToLoad=$load_file -connQueryFile=$connected_query_file  -disconnQueryFile=$disconnected_query_file -addEdgesFile=$add_file -deleteEdgesFile=$graph_delete_file -baseDir=$datasetDir -DropProbability=${drop_prob} -DropType=${drop_type} -BloomType=${bloom_type} -DropMinimum=${dropMinimum} -DropMaximum=${dropMaximum} -addDeleteSeed ${bloomSize}  -numQueries=${number_queries} -batchSize=${batch_size} -numBatches=${nb} -executorType=${execType} -deletionProbability=${delete_probability} -connectedQueryPercentage=${connected_probability} > ${my_log}.log"
