@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ca.waterloo.dsg.graphflow.graph.GraphflowDurabilityTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-11-27T19:59:09" hostname="Khaleds-MacBook-Pro.local" time="0.184">
+  <properties/>
+  <testcase name="testSavingAndLoadingSimpleGraph" classname="ca.waterloo.dsg.graphflow.graph.GraphflowDurabilityTest" time="0.184"/>
+  <system-out><![CDATA[[INFO ][2021-11-27 14:59:09.862] ParallelArraySerDeUtils: Serializing adjacency_lists of ca.waterloo.dsg.graphflow.graph.graph.
+[INFO ][2021-11-27 14:59:09.873] ParallelArraySerDeUtils: Serializing block 0 of adjacency_lists
+[INFO ][2021-11-27 14:59:09.873] MainFileSerDeHelper: Serializing main file of ca.waterloo.dsg.graphflow.graph.graph.
+[INFO ][2021-11-27 14:59:09.876] ParallelArraySerDeUtils: adjacency_lists block 0 (from 0 to 4) of ca.waterloo.dsg.graphflow.graph.graph serialized in 0.750 ms.
+[INFO ][2021-11-27 14:59:09.878] MainFileSerDeHelper: Main file of ca.waterloo.dsg.graphflow.graph.graph serialized in 4.143 ms.
+[INFO ][2021-11-27 14:59:09.879] ParallelArraySerDeUtils: Deserialization for array 'adjacency_lists' of class 'ca.waterloo.dsg.graphflow.graph.graph' completed in 19.646 ms.
+[INFO ][2021-11-27 14:59:09.879] MainFileSerDeHelper: Serializing main file of type_and_property_key_store.
+[INFO ][2021-11-27 14:59:09.886] MainFileSerDeHelper: Main file of type_and_property_key_store serialized in 5.853 ms.
+[INFO ][2021-11-27 14:59:09.886] MainFileSerDeHelper: Deserializing ca.waterloo.dsg.graphflow.graph.graph.
+[INFO ][2021-11-27 14:59:09.887] MainFileSerDeHelper: Main file of ca.waterloo.dsg.graphflow.graph.graph deserialized in 0.530 ms.
+[INFO ][2021-11-27 14:59:09.887] ParallelArraySerDeUtils: Deserializing adjacency_lists of ca.waterloo.dsg.graphflow.graph.graph.
+[INFO ][2021-11-27 14:59:09.889] ParallelArraySerDeUtils: Deserializing block 0 of adjacency_lists
+[INFO ][2021-11-27 14:59:09.889] ParallelArraySerDeUtils: adjacency_lists block 0 (from 0 to 4) of ca.waterloo.dsg.graphflow.graph.graph deserialized in 0.177 ms.
+[INFO ][2021-11-27 14:59:09.889] ParallelArraySerDeUtils: Deserialization for array 'adjacency_lists' of class 'ca.waterloo.dsg.graphflow.graph.graph' completed in 2.718 ms.
+[INFO ][2021-11-27 14:59:09.890] MainFileSerDeHelper: Deserializing type_and_property_key_store.
+[INFO ][2021-11-27 14:59:09.891] MainFileSerDeHelper: Main file of type_and_property_key_store deserialized in 0.895 ms.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
