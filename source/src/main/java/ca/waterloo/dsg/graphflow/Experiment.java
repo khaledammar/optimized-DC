@@ -35,16 +35,12 @@ public class Experiment {
         DELETION
     }
 
-    //
-    //This is the base directory for dataset files. I need to change it to be a parameter.
-    //
     private static final String ARG_NEW_FILE_FORMAT = "useNewFormat";
     private static final String ARG_WRITE_BATCHES = "writeBatches";
     private static final String ARG_TIMERS = "useTimers";
     private static final String SPLIT_REGEX = "\t+|\\s+|,";
     private static final long MEGABYTE = 1024L * 1024L;
     private static String ARG_BASE_DIR = "baseDir";
-    //From Khaled's machine
     private static String DEFAULT_ARG_BASE_DIR = "/Users/khaled/dataset/";
     private static String ARG_GRAPH_FILE_TO_LOAD = "graphFileToLoad";
     private static String DEFAULT_ARG_GRAPH_FILE_TO_LOAD = "soc-Epinions1-90.txt";

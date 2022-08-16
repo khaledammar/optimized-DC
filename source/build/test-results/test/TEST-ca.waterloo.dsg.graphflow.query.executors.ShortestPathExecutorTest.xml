@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="ca.waterloo.dsg.graphflow.query.executors.ShortestPathExecutorTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2021-11-27T19:59:09" hostname="Khaleds-MacBook-Pro.local" time="0.006">
-  <properties/>
-  <testcase name="testEvaluateQuerySource0Target9" classname="ca.waterloo.dsg.graphflow.query.executors.ShortestPathExecutorTest" time="0.002"/>
-  <testcase name="testEvaluateQueryWithNonExistentSource" classname="ca.waterloo.dsg.graphflow.query.executors.ShortestPathExecutorTest" time="0.001"/>
-  <testcase name="testBackTrackIntersectionSource0Target9" classname="ca.waterloo.dsg.graphflow.query.executors.ShortestPathExecutorTest" time="0.002"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

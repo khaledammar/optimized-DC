@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="ca.waterloo.dsg.graphflow.query.structuredquery.QueryGraphTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2021-11-27T19:59:10" hostname="Khaleds-MacBook-Pro.local" time="0.01">
-  <properties/>
-  <testcase name="testNumberOfAdjacentRelations" classname="ca.waterloo.dsg.graphflow.query.structuredquery.QueryGraphTest" time="0.009"/>
-  <testcase name="testGetAllVariables" classname="ca.waterloo.dsg.graphflow.query.structuredquery.QueryGraphTest" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

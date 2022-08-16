@@ -15,10 +15,6 @@ public class GenerateWeightedGraphs {
 
     public static String ARG_SEED_EDGE_WEIGHT = "edgeWeightSeed";
 
-    //
-    //This is the base directory for dataset files. I need to change it to be a parameter.
-    // The default is set to either khaled's or Semih's machine for easy debug.
-    //
     public static String DEFAULT_ARG_SEED_EDGE_WEIGHT = "8881453";
     public static String ARG_EDGE_WEIGHT_RANGE = "edgeWeightRange";
     public static String DEFAULT_ARG_EDGE_WEIGHT_RANGE = "10";
